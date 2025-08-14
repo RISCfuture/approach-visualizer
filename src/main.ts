@@ -7,6 +7,7 @@ import { initBugsnag } from './bugsnag'
 
 import 'normalize.css'
 import 'primeflex/primeflex.css'
+import 'primeicons/primeicons.css'
 import './styles/global.css'
 
 import App from './App.vue'

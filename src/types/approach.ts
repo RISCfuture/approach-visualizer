@@ -13,9 +13,17 @@ export interface ApproachSettings {
   visibilityUnit: 'SM' | 'RVR'
   lightingType: LightingType
   approachSpeed: number
+  showREIL: boolean
+  showRCLS: boolean
+  showEdgeLights: boolean
+  showPAPI: boolean
+  showThresholdMarkings: boolean
+  showTouchdownZone: boolean
+  showSideStripes: boolean
+  showAimPoint: boolean
 }
 
-export type LightingType = 'ALSF-II' | 'ALSF-I' | 'MALSR' | 'SSALR' | 'REIL'
+export type LightingType = 'ALSF-II' | 'ALSF-I' | 'MALSR' | 'SSALR' | 'MALS' | 'MALSF' | 'ODALS' | 'None'
 
 export interface AnimationState {
   isPlaying: boolean
@@ -73,9 +81,12 @@ export const APPROACH_MINIMA: ApproachMinimum[] = [
 export const LIGHTING_TYPES: { value: LightingType; label: string }[] = [
   { value: 'ALSF-II', label: 'ALSF-II (CAT II/III)' },
   { value: 'ALSF-I', label: 'ALSF-I (CAT I)' },
-  { value: 'MALSR', label: 'MALSR' },
+  { value: 'MALSR', label: 'MALSR (CAT I)' },
   { value: 'SSALR', label: 'SSALR' },
-  { value: 'REIL', label: 'REIL Only' },
+  { value: 'MALS', label: 'MALS' },
+  { value: 'MALSF', label: 'MALSF' },
+  { value: 'ODALS', label: 'ODALS' },
+  { value: 'None', label: 'None' },
 ]
 
 export const GLIDESLOPE_ANGLE = 3

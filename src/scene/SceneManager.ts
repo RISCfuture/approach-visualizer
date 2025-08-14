@@ -165,59 +165,42 @@ export class SceneManager {
   private createRunwayMarkings(length: number, width: number): void {
     const markingMat = new BABYLON.StandardMaterial('markingMat', this.scene)
     markingMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
-    // Reduce brightness at night to simulate moonlight on semi-reflective paint
     markingMat.emissiveColor = this.isDarkMode
-      ? new BABYLON.Color3(0.15, 0.15, 0.15) // Dim moonlight reflection
-      : new BABYLON.Color3(0.8, 0.8, 0.8) // Brighter for day visibility
+      ? new BABYLON.Color3(0.15, 0.15, 0.15)
+      : new BABYLON.Color3(0.8, 0.8, 0.8)
 
-    // Check if this is a precision approach (not non-precision or circling)
-    const isPrecisionApproach =
-      this.approachStore.selectedMinimumId !== 'non-precision' &&
-      this.approachStore.selectedMinimumId !== 'circling'
-
-    // FAA standard dimensions in feet
+    // ============================================
+    // CENTERLINE - Always visible on precision runways
+    // ============================================
     const centerlineStripeLengthFt = 120
     const centerlineGapFt = 80
     const centerlineWidthFt = 3
-    const aimingPointLengthFt = 150
-    const aimingPointWidthFt = 20
-
-    // Convert to meters
     const centerlineStripeLength = feetToMeters(centerlineStripeLengthFt)
     const centerlineGap = feetToMeters(centerlineGapFt)
     const centerlineWidth = feetToMeters(centerlineWidthFt)
-    const aimingPointLength = feetToMeters(aimingPointLengthFt)
-    const aimingPointWidth = feetToMeters(aimingPointWidthFt)
+    
+    const centerlineStart = feetToMeters(500)
+    const centerlineInterval = centerlineStripeLength + centerlineGap
+    const numCenterlines = Math.floor((length - centerlineStart) / centerlineInterval)
 
-    // Threshold markings - 8 stripes for runways 150+ ft wide
-    const numThresholdStripes = 8
-    const thresholdStripeWidth = feetToMeters(5.75)
-    const thresholdStripeLength = feetToMeters(150)
-    const thresholdGap =
-      (width - numThresholdStripes * thresholdStripeWidth) / (numThresholdStripes + 1)
-
-    for (let i = 0; i < numThresholdStripes; i++) {
-      const stripe = BABYLON.MeshBuilder.CreateBox(
-        `threshold${i}`,
+    for (let i = 0; i < numCenterlines; i++) {
+      const centerline = BABYLON.MeshBuilder.CreateBox(
+        `centerline_${i}`,
         {
-          width: thresholdStripeWidth,
+          width: centerlineWidth,
           height: 0.05,
-          depth: thresholdStripeLength,
+          depth: centerlineStripeLength,
         },
         this.scene,
       )
-      const x =
-        -width / 2 +
-        thresholdGap +
-        i * (thresholdStripeWidth + thresholdGap) +
-        thresholdStripeWidth / 2
-      stripe.position.z = feetToMeters(75)
-      stripe.position.x = x
-      stripe.position.y = 0.2 // Just above runway surface
-      stripe.material = markingMat
+      centerline.position.z = centerlineStart + i * centerlineInterval + centerlineStripeLength / 2
+      centerline.position.y = 0.2
+      centerline.material = markingMat
     }
 
-    // Runway designation numbers (09 from our approach, opposite of 27)
+    // ============================================
+    // RUNWAY DESIGNATION NUMBERS - Always visible
+    // ============================================
     const createNumber09 = () => {
       // We're approaching runway 09 (opposite end of 27)
       // Numbers are 60 ft tall
@@ -352,57 +335,102 @@ export class SceneManager {
       nine5.position.set(feetToMeters(30), 0.2, baseZ + numberHeight - strokeWidth)
       nine5.material = markingMat
     }
+    // Always create runway numbers
     createNumber09()
-
-    // Centerline markings (120 ft stripes, 80 ft gaps)
-    const centerlineStart = feetToMeters(500) // Start after threshold area
-    const centerlineInterval = centerlineStripeLength + centerlineGap
-    const numCenterlines = Math.floor((length - centerlineStart) / centerlineInterval)
-
-    for (let i = 0; i < numCenterlines; i++) {
-      const centerline = BABYLON.MeshBuilder.CreateBox(
-        `centerline${i}`,
-        {
-          width: centerlineWidth,
-          height: 0.05,
-          depth: centerlineStripeLength,
-        },
-        this.scene,
-      )
-      centerline.position.z = centerlineStart + i * centerlineInterval + centerlineStripeLength / 2
-      centerline.position.y = 0.2
-      centerline.material = markingMat
+    
+    // ============================================
+    // THRESHOLD MARKINGS
+    // ============================================
+    if (this.approachStore.showThresholdMarkings) {
+      // Threshold stripes (piano keys)
+      const thresholdStripeWidth = feetToMeters(5.75)
+      const thresholdStripeLength = feetToMeters(150)
+      const thresholdSpacing = feetToMeters(5.75)
+      const thresholdStartZ = 0
+      
+      // 12 stripes total (6 on each side)
+      for (let i = 0; i < 6; i++) {
+        for (let side = -1; side <= 1; side += 2) {
+          const threshold = BABYLON.MeshBuilder.CreateBox(
+            `threshold_${side}_${i}`,
+            {
+              width: thresholdStripeWidth,
+              height: 0.05,
+              depth: thresholdStripeLength,
+            },
+            this.scene,
+          )
+          const xPos = side * (feetToMeters(11.5) + i * (thresholdStripeWidth + thresholdSpacing))
+          threshold.position.x = xPos
+          threshold.position.z = thresholdStartZ + thresholdStripeLength / 2
+          threshold.position.y = 0.2
+          threshold.material = markingMat
+        }
+      }
     }
 
-    // Aiming point markings (1000 ft from threshold)
-    const aimingPointZ = feetToMeters(1000)
-    for (let side = -1; side <= 1; side += 2) {
-      const aimingPoint = BABYLON.MeshBuilder.CreateBox(
-        `aimingPoint_${side}`,
-        {
-          width: aimingPointWidth,
-          height: 0.05,
-          depth: aimingPointLength,
-        },
-        this.scene,
-      )
-      aimingPoint.position.z = aimingPointZ
-      aimingPoint.position.x = side * feetToMeters(35) // 35 ft from centerline
-      aimingPoint.position.y = 0.2
-      aimingPoint.material = markingMat
+    // ============================================
+    // SIDE STRIPES - Edge markings for precision runways
+    // ============================================
+    if (this.approachStore.showSideStripes) {
+      // Create continuous edge stripes along both sides of the runway
+      const edgeStripeWidth = feetToMeters(3) // 3 ft wide edge stripes
+      
+      for (let side = -1; side <= 1; side += 2) {
+        const edgeStripe = BABYLON.MeshBuilder.CreateBox(
+          `edgeStripe_${side}`,
+          {
+            width: edgeStripeWidth,
+            height: 0.05,
+            depth: length * 0.9, // Cover most of the runway length
+          },
+          this.scene,
+        )
+        edgeStripe.position.x = side * (width / 2 - edgeStripeWidth / 2 - feetToMeters(2)) // 2ft from edge
+        edgeStripe.position.z = length * 0.45 // Center it along runway
+        edgeStripe.position.y = 0.2
+        edgeStripe.material = markingMat
+      }
     }
 
-    // Touchdown zone markings (only for precision approaches)
-    if (isPrecisionApproach) {
-      // Pattern: 3 bars at 500ft, 2 bars at 1000ft, 1 bar at 1500ft,
-      // 1 bar at 2000ft, 2 bars at 2500ft, 3 bars at 3000ft
+    // ============================================
+    // AIMING POINT MARKINGS
+    // ============================================
+    if (this.approachStore.showAimPoint) {
+      const aimingPointLengthFt = 150
+      const aimingPointWidthFt = 20
+      const aimingPointLength = feetToMeters(aimingPointLengthFt)
+      const aimingPointWidth = feetToMeters(aimingPointWidthFt)
+      const aimingPointZ = feetToMeters(1000)
+      
+      for (let side = -1; side <= 1; side += 2) {
+        const aimingPoint = BABYLON.MeshBuilder.CreateBox(
+          `aimingPoint_${side}`,
+          {
+            width: aimingPointWidth,
+            height: 0.05,
+            depth: aimingPointLength,
+          },
+          this.scene,
+        )
+        aimingPoint.position.z = aimingPointZ
+        aimingPoint.position.x = side * feetToMeters(35) // 35 ft from centerline
+        aimingPoint.position.y = 0.2
+        aimingPoint.material = markingMat
+      }
+    }
+
+    // ============================================
+    // TOUCHDOWN ZONE MARKINGS
+    // ============================================
+    // Pattern: 3 bars at 500ft, 2 bars at 1000ft (covered by aiming point),
+    // 1 bar at 1500ft, 2 bars at 2000ft, 3 bars at 2500ft
+    if (this.approachStore.showTouchdownZone) {
       const tdzPattern = [
         { distance: 500, bars: 3 },
-        { distance: 1000, bars: 2 },
         { distance: 1500, bars: 1 },
-        { distance: 2000, bars: 1 },
-        { distance: 2500, bars: 2 },
-        { distance: 3000, bars: 3 },
+        { distance: 2000, bars: 2 },
+        { distance: 2500, bars: 3 },
       ]
 
       for (const marker of tdzPattern) {
@@ -426,29 +454,6 @@ export class SceneManager {
             tdz.material = markingMat
           }
         }
-      }
-    }
-
-    // Runway side stripe markings (only for precision approaches)
-    if (isPrecisionApproach) {
-      const sideStripeWidth = feetToMeters(3) // 3 ft wide stripes
-      const sideStripeOffset = width / 2 - sideStripeWidth / 2 // Position at runway edge
-
-      // Create side stripes for both edges
-      for (let side = -1; side <= 1; side += 2) {
-        const sideStripe = BABYLON.MeshBuilder.CreateBox(
-          `sideStripe_${side}`,
-          {
-            width: sideStripeWidth,
-            height: 0.05,
-            depth: length,
-          },
-          this.scene,
-        )
-        sideStripe.position.x = side * sideStripeOffset
-        sideStripe.position.z = length / 2
-        sideStripe.position.y = 0.2
-        sideStripe.material = markingMat
       }
     }
   }
@@ -483,86 +488,6 @@ export class SceneManager {
     }
   }
 
-  private clearRunwayMarkings(): void {
-    // Clear all runway marking meshes
-    const markingNames = [
-      'threshold',
-      'zero',
-      'nine',
-      'centerline',
-      'aimingPoint',
-      'tdz_',
-      'sideStripe_',
-    ]
-
-    this.scene.meshes.forEach((mesh) => {
-      if (markingNames.some((name) => mesh.name.includes(name))) {
-        mesh.dispose()
-      }
-    })
-  }
-
-  private createRunwayCenterlineLights(): void {
-    // RCLS - Runway Centerline Lighting System
-    // Installed for precision approaches (ALSF-II, ALSF-I, MALSR)
-    const runwayLengthM = feetToMeters(RUNWAY_LENGTH_FT)
-
-    // Materials for centerline lights
-    const whiteCenterMat = new BABYLON.StandardMaterial('whiteCenterLight', this.scene)
-    whiteCenterMat.emissiveColor = new BABYLON.Color3(1, 1, 1)
-    whiteCenterMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
-
-    const redCenterMat = new BABYLON.StandardMaterial('redCenterLight', this.scene)
-    redCenterMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
-    redCenterMat.diffuseColor = new BABYLON.Color3(1, 0, 0)
-
-    // Centerline lights every 50 feet
-    const lightSpacingFt = 50
-    const lightSpacingM = feetToMeters(lightSpacingFt)
-
-    // Calculate zones:
-    // - White: from threshold to (runway length - 3000 ft)
-    // - Alternating white/red: next 2000 ft
-    // - Red only: last 1000 ft
-    const redOnlyStartM = runwayLengthM - feetToMeters(1000)
-    const alternatingStartM = runwayLengthM - feetToMeters(3000)
-
-    const numLights = Math.floor(runwayLengthM / lightSpacingM)
-
-    for (let i = 0; i <= numLights; i++) {
-      const z = i * lightSpacingM
-
-      // Skip if too close to threshold (first 100 ft)
-      if (z < feetToMeters(100)) continue
-
-      let material = whiteCenterMat
-
-      if (z >= redOnlyStartM) {
-        // Last 1000 ft - all red
-        material = redCenterMat
-      } else if (z >= alternatingStartM) {
-        // 3000-1000 ft from end - alternating white/red
-        // Use modulo to alternate
-        const lightNum = Math.floor((z - alternatingStartM) / lightSpacingM)
-        material = lightNum % 2 === 0 ? whiteCenterMat : redCenterMat
-      }
-
-      const centerlineLight = BABYLON.MeshBuilder.CreateSphere(
-        `centerline_${i}`,
-        { diameter: 0.4, segments: 8 }, // Small embedded light
-        this.scene,
-      )
-      centerlineLight.position.set(0, 0.5, z) // Slightly above runway surface
-      centerlineLight.material = material
-
-      if (this.glowLayer) {
-        this.glowLayer.addIncludedOnlyMesh(centerlineLight)
-      }
-
-      this.runwayLights.push(centerlineLight)
-    }
-  }
-
   private createRunwayEdgeLights(): void {
     // Create or reuse glow layer for all lights
     if (!this.glowLayer) {
@@ -572,122 +497,101 @@ export class SceneManager {
     }
 
     // Create PAPI lights
-    this.createPAPILights()
+    if (this.approachStore.showPAPI) {
+      this.createPAPILights()
+    }
+    
+    // Create standalone REIL lights if enabled
+    if (this.approachStore.showREIL && this.reilLights.length === 0) {
+      this.createREILLights()
+    }
 
     const runwayLengthM = feetToMeters(RUNWAY_LENGTH_FT)
     const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
-    const lightSpacing = 60
 
-    // Material definitions
-    const whiteMat = new BABYLON.StandardMaterial('whiteLight', this.scene)
-    whiteMat.emissiveColor = new BABYLON.Color3(1, 1, 0.95)
-    whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
+    // Edge lights
+    if (this.approachStore.showEdgeLights) {
+      const lightSpacing = 60
 
-    const yellowMat = new BABYLON.StandardMaterial('yellowLight', this.scene)
-    yellowMat.emissiveColor = new BABYLON.Color3(1, 0.9, 0)
-    yellowMat.diffuseColor = new BABYLON.Color3(1, 1, 0)
+      const whiteMat = new BABYLON.StandardMaterial('whiteLight', this.scene)
+      whiteMat.emissiveColor = new BABYLON.Color3(1, 1, 0.95)
+      whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
 
-    const greenMat = new BABYLON.StandardMaterial('greenLight', this.scene)
-    greenMat.emissiveColor = new BABYLON.Color3(0, 1, 0)
-    greenMat.diffuseColor = new BABYLON.Color3(0, 1, 0)
+      const yellowMat = new BABYLON.StandardMaterial('yellowLight', this.scene)
+      yellowMat.emissiveColor = new BABYLON.Color3(1, 1, 0)
+      yellowMat.diffuseColor = new BABYLON.Color3(1, 1, 0)
 
-    const redMat = new BABYLON.StandardMaterial('redLight', this.scene)
-    redMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
-    redMat.diffuseColor = new BABYLON.Color3(1, 0, 0)
+      const greenMat = new BABYLON.StandardMaterial('greenLight', this.scene)
+      greenMat.emissiveColor = new BABYLON.Color3(0, 1, 0)
+      greenMat.diffuseColor = new BABYLON.Color3(0, 1, 0)
 
-    // Calculate caution zone length (last 2000 ft or half runway, whichever is less)
-    const cautionZoneLengthFt = Math.min(2000, RUNWAY_LENGTH_FT / 2)
-    const cautionZoneStartM = runwayLengthM - feetToMeters(cautionZoneLengthFt)
+      const redMat = new BABYLON.StandardMaterial('redLight', this.scene)
+      redMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
+      redMat.diffuseColor = new BABYLON.Color3(1, 0, 0)
 
-    // Runway edge lights
-    const numLights = Math.floor(runwayLengthM / lightSpacing)
-    for (let i = 0; i <= numLights; i++) {
-      const z = i * lightSpacing
+      // Calculate caution zone length (last 2000 ft or half runway, whichever is less)
+      const cautionZoneLengthFt = Math.min(2000, RUNWAY_LENGTH_FT / 2)
+      const cautionZoneStartM = runwayLengthM - feetToMeters(cautionZoneLengthFt)
 
-      // Determine light color based on position
-      let material = whiteMat
-      if (z >= cautionZoneStartM) {
-        // Yellow caution zone for last 2000 ft or half runway
-        material = yellowMat
+      const numLights = Math.floor(runwayLengthM / lightSpacing)
+      for (let i = 0; i <= numLights; i++) {
+        const z = i * lightSpacing
+        let material = whiteMat
+        
+        if (z >= cautionZoneStartM) {
+          // Yellow caution zone for last 2000 ft or half runway
+          material = yellowMat
+        }
+
+        for (let side = -1; side <= 1; side += 2) {
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `runwayLight_${side}_${i}`,
+            { diameter: 0.5, segments: 8 }, // Small point light
+            this.scene,
+          )
+          light.position.x = side * (runwayWidthM / 2 + 3)
+          light.position.z = z
+          light.position.y = 1
+          light.material = material
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.runwayLights.push(light)
+        }
       }
 
-      for (let side = -1; side <= 1; side += 2) {
-        const light = BABYLON.MeshBuilder.CreateSphere(
-          `runwayLight_${side}_${i}`,
-          { diameter: 0.5, segments: 8 }, // Small point light
+      // Threshold lights (green) - skip if system has its own threshold bar
+      const hasOwnThresholdBar = ['ALSF-II', 'ALSF-I', 'SSALR', 'MALS', 'MALSF', 'MALSR'].includes(this.approachStore.lightingType)
+      if (!hasOwnThresholdBar) {
+        for (let x = -runwayWidthM / 2; x <= runwayWidthM / 2; x += runwayWidthM / 8) {
+          const thresholdLight = BABYLON.MeshBuilder.CreateSphere(
+            `threshold_${x}`,
+            { diameter: 0.8, segments: 8 }, // Slightly larger for threshold
+            this.scene,
+          )
+          thresholdLight.position.set(x, 1, 5)
+          thresholdLight.material = greenMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(thresholdLight)
+          }
+          this.runwayLights.push(thresholdLight)
+        }
+      }
+
+      // Runway end lights (red toward runway for departing aircraft)
+      for (let x = -runwayWidthM / 2; x <= runwayWidthM / 2; x += runwayWidthM / 8) {
+        const endLight = BABYLON.MeshBuilder.CreateSphere(
+          `end_${x}`,
+          { diameter: 0.8, segments: 8 },
           this.scene,
         )
-        light.position.x = side * (runwayWidthM / 2 + 3)
-        light.position.z = z
-        light.position.y = 1
-        light.material = material
+        endLight.position.set(x, 1, runwayLengthM - 5)
+        endLight.material = redMat
         if (this.glowLayer) {
-          this.glowLayer.addIncludedOnlyMesh(light)
+          this.glowLayer.addIncludedOnlyMesh(endLight)
         }
-        this.runwayLights.push(light)
+        this.runwayLights.push(endLight)
       }
-    }
-
-    // Threshold lights (green outward for landing aircraft)
-    for (let x = -runwayWidthM / 2; x <= runwayWidthM / 2; x += runwayWidthM / 8) {
-      const thresholdLight = BABYLON.MeshBuilder.CreateSphere(
-        `threshold_green_${x}`,
-        { diameter: 0.8, segments: 8 }, // Slightly larger for threshold
-        this.scene,
-      )
-      thresholdLight.position.set(x, 1, 5)
-      thresholdLight.material = greenMat
-      if (this.glowLayer) {
-        this.glowLayer.addIncludedOnlyMesh(thresholdLight)
-      }
-      this.runwayLights.push(thresholdLight)
-    }
-
-    // Runway end lights (red toward runway for departing aircraft)
-    // These are at the far end of the runway
-    for (let x = -runwayWidthM / 2; x <= runwayWidthM / 2; x += runwayWidthM / 8) {
-      const endLight = BABYLON.MeshBuilder.CreateSphere(
-        `runway_end_red_${x}`,
-        { diameter: 0.8, segments: 8 }, // Same size as threshold lights
-        this.scene,
-      )
-      endLight.position.set(x, 1, runwayLengthM - 5) // Near the end of runway
-      endLight.material = redMat
-      if (this.glowLayer) {
-        this.glowLayer.addIncludedOnlyMesh(endLight)
-      }
-      this.runwayLights.push(endLight)
-    }
-
-    // Add bi-directional lights at runway ends (red/green depending on direction)
-    // At threshold (0 ft) - red inward (for opposite direction departures)
-    for (let side = -1; side <= 1; side += 2) {
-      const thresholdEndLight = BABYLON.MeshBuilder.CreateSphere(
-        `threshold_end_${side}`,
-        { diameter: 0.6, segments: 8 },
-        this.scene,
-      )
-      thresholdEndLight.position.set(side * (runwayWidthM / 2 + 3), 1, 0)
-      thresholdEndLight.material = redMat // Red facing into runway
-      if (this.glowLayer) {
-        this.glowLayer.addIncludedOnlyMesh(thresholdEndLight)
-      }
-      this.runwayLights.push(thresholdEndLight)
-    }
-
-    // At far end - green outward (for opposite direction approaches)
-    for (let side = -1; side <= 1; side += 2) {
-      const farEndLight = BABYLON.MeshBuilder.CreateSphere(
-        `far_end_green_${side}`,
-        { diameter: 0.6, segments: 8 },
-        this.scene,
-      )
-      farEndLight.position.set(side * (runwayWidthM / 2 + 3), 1, runwayLengthM)
-      farEndLight.material = greenMat // Green facing outward
-      if (this.glowLayer) {
-        this.glowLayer.addIncludedOnlyMesh(farEndLight)
-      }
-      this.runwayLights.push(farEndLight)
     }
   }
 
@@ -708,136 +612,179 @@ export class SceneManager {
 
     switch (type) {
       case 'ALSF-II': {
-        // ALSF-II: 2400 ft length with decision bar at 1000 ft
-        // Centerline lights every 100 ft (30.48m)
+        // ALSF-2: FAA specification for CAT II/III runways (per Figure 2-1)
+        
+        // 1. Centerline light bars every 100 ft from 100 to 2400 ft
+        // Each standard bar is 14 ft long with 5 equally spaced lights
         for (let ft = 100; ft <= 2400; ft += 100) {
           const z = -feetToMeters(ft)
-          const centerLight = BABYLON.MeshBuilder.CreateSphere(
-            `alsf2_center_${ft}`,
-            { diameter: 0.6, segments: 8 }, // Small approach light
-            this.scene,
-          )
-          centerLight.position.set(0, 2, z)
-          centerLight.material = whiteMat
-          this.approachLights.push(centerLight)
-        }
-
-        // Decision bar at 1000 ft (38 lights across 150 ft)
-        const decisionZ = -feetToMeters(1000)
-        for (let x = -22.86; x <= 22.86; x += 1.2) {
-          const decisionLight = BABYLON.MeshBuilder.CreateSphere(
-            `alsf2_decision_${x}`,
-            { diameter: 0.5, segments: 8 }, // Small decision bar light
-            this.scene,
-          )
-          decisionLight.position.set(x, 2, decisionZ)
-          decisionLight.material = whiteMat
-          if (this.glowLayer) {
-            this.glowLayer.addIncludedOnlyMesh(decisionLight)
-          }
-          this.approachLights.push(decisionLight)
-        }
-
-        // Red side row bars from terminating bar (200 ft) to runway threshold (0 ft)
-        // Plus from 500-1000 ft as per standard ALSF-2
-        const redSideRowPositions = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-        for (const ft of redSideRowPositions) {
-          const z = -feetToMeters(ft)
-          // Left side (10 lights)
-          for (let i = 0; i < 10; i++) {
-            const x = -9.14 - i * 0.91
-            const sideLight = BABYLON.MeshBuilder.CreateSphere(
-              `alsf2_left_${ft}_${i}`,
-              { diameter: 0.4, segments: 8 }, // Small side light
-              this.scene,
-            )
-            sideLight.position.set(x, 2, z)
-            sideLight.material = redMat
-            if (this.glowLayer) {
-              this.glowLayer.addIncludedOnlyMesh(sideLight)
-            }
-            this.approachLights.push(sideLight)
-          }
-          // Right side (10 lights)
-          for (let i = 0; i < 10; i++) {
-            const x = 9.14 + i * 0.91
-            const sideLight = BABYLON.MeshBuilder.CreateSphere(
-              `alsf2_right_${ft}_${i}`,
-              { diameter: 0.4, segments: 8 }, // Small side light
-              this.scene,
-            )
-            sideLight.position.set(x, 2, z)
-            sideLight.material = redMat
-            if (this.glowLayer) {
-              this.glowLayer.addIncludedOnlyMesh(sideLight)
-            }
-            this.approachLights.push(sideLight)
-          }
-        }
-
-        // Touchdown Zone Lights (TDZL) - white lights from threshold to 3000 ft
-        // Same geometry as side row lights but white instead of red
-        for (let ft = 100; ft <= 3000; ft += 100) {
-          const z = feetToMeters(ft) // Positive Z since these are on the runway
-          // Left side row (10 lights)
-          for (let i = 0; i < 10; i++) {
-            const x = -9.14 - i * 0.91 // Same spacing as red side rows
-            const tdzLight = BABYLON.MeshBuilder.CreateSphere(
-              `alsf2_tdzl_left_${ft}_${i}`,
-              { diameter: 0.4, segments: 8 }, // Same size as side row lights
-              this.scene,
-            )
-            tdzLight.position.set(x, 1, z)
-            tdzLight.material = whiteMat
-            if (this.glowLayer) {
-              this.glowLayer.addIncludedOnlyMesh(tdzLight)
-            }
-            this.runwayLights.push(tdzLight) // Add to runway lights array since they're on the runway
-          }
-          // Right side row (10 lights)
-          for (let i = 0; i < 10; i++) {
-            const x = 9.14 + i * 0.91 // Same spacing as red side rows
-            const tdzLight = BABYLON.MeshBuilder.CreateSphere(
-              `alsf2_tdzl_right_${ft}_${i}`,
-              { diameter: 0.4, segments: 8 }, // Same size as side row lights
-              this.scene,
-            )
-            tdzLight.position.set(x, 1, z)
-            tdzLight.material = whiteMat
-            if (this.glowLayer) {
-              this.glowLayer.addIncludedOnlyMesh(tdzLight)
-            }
-            this.runwayLights.push(tdzLight) // Add to runway lights array since they're on the runway
-          }
-        }
-
-        // Light bars at 500 ft intervals (500, 1500, 2000 ft)
-        const barPositions = [500, 1500, 2000]
-        for (const ft of barPositions) {
-          const z = -feetToMeters(ft)
-          for (let x = -13.7; x <= 13.7; x += 2.74) {
-            if (Math.abs(x) > 1) {
-              const barLight = BABYLON.MeshBuilder.CreateSphere(
-                `alsf2_bar_${ft}_${x}`,
-                { diameter: 0.5, segments: 8 }, // Small bar light
+          
+          if (ft === 1000) {
+            // 1000-foot bar - special 100 ft wide bar (21 lights with closer spacing)
+            // Main centerline bar (5 lights)
+            for (let i = -2; i <= 2; i++) {
+              const x = i * feetToMeters(3) // 3 ft spacing
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `alsf2_1000_center_${i}`,
+                { diameter: 0.6, segments: 8 },
                 this.scene,
               )
-              barLight.position.set(x, 2, z)
-              barLight.material = whiteMat
+              light.position.set(x, 2, z)
+              light.material = whiteMat
               if (this.glowLayer) {
-                this.glowLayer.addIncludedOnlyMesh(barLight)
+                this.glowLayer.addIncludedOnlyMesh(light)
               }
-              this.approachLights.push(barLight)
+              this.approachLights.push(light)
+            }
+            // Extended portions (8 lights on each side)
+            for (let side = -1; side <= 1; side += 2) {
+              for (let i = 1; i <= 8; i++) {
+                const x = side * (feetToMeters(15) + i * feetToMeters(5))
+                const light = BABYLON.MeshBuilder.CreateSphere(
+                  `alsf2_1000_ext_${side}_${i}`,
+                  { diameter: 0.6, segments: 8 },
+                  this.scene,
+                )
+                light.position.set(x, 2, z)
+                light.material = whiteMat
+                if (this.glowLayer) {
+                  this.glowLayer.addIncludedOnlyMesh(light)
+                }
+                this.approachLights.push(light)
+              }
+            }
+          } else {
+            // Standard 14 ft centerline bar with 5 lights
+            for (let i = -2; i <= 2; i++) {
+              const x = i * feetToMeters(3.5) // 14 ft / 4 spaces = 3.5 ft
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `alsf2_bar_${ft}_${i}`,
+                { diameter: 0.6, segments: 8 },
+                this.scene,
+              )
+              light.position.set(x, 2, z)
+              light.material = whiteMat
+              if (this.glowLayer) {
+                this.glowLayer.addIncludedOnlyMesh(light)
+              }
+              this.approachLights.push(light)
             }
           }
         }
-
-        // Sequenced flashers every 200 ft from 200-2200 ft
-        for (let ft = 200; ft <= 2200; ft += 200) {
+        
+        // 2. 500-foot bar - 4 white lights extending 30 ft on each side
+        const fiveHundredZ = -feetToMeters(500)
+        // Left side barrette
+        for (let i = 0; i < 4; i++) {
+          const x = -feetToMeters(15 + i * 5) // Starting 15 ft from center
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `alsf2_500bar_left_${i}`,
+            { diameter: 0.6, segments: 8 },
+            this.scene,
+          )
+          light.position.set(x, 2, fiveHundredZ)
+          light.material = whiteMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.approachLights.push(light)
+        }
+        // Right side barrette
+        for (let i = 0; i < 4; i++) {
+          const x = feetToMeters(15 + i * 5) // Starting 15 ft from center
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `alsf2_500bar_right_${i}`,
+            { diameter: 0.6, segments: 8 },
+            this.scene,
+          )
+          light.position.set(x, 2, fiveHundredZ)
+          light.material = whiteMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.approachLights.push(light)
+        }
+        
+        // 3. Red side row bars - 3 red lights on each side for stations 100-900 ft
+        // Aligned with touchdown zone lights position
+        for (let ft = 100; ft <= 900; ft += 100) {
+          const z = -feetToMeters(ft)
+          for (let side = -1; side <= 1; side += 2) {
+            // 3 lights starting from about 40 ft from centerline
+            for (let i = 0; i < 3; i++) {
+              const x = side * feetToMeters(40 + i * 5) // 40, 45, 50 ft from centerline
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `alsf2_sidebar_${ft}_${side}_${i}`,
+                { diameter: 0.5, segments: 8 },
+                this.scene,
+              )
+              light.position.set(x, 2, z)
+              light.material = redMat
+              if (this.glowLayer) {
+                this.glowLayer.addIncludedOnlyMesh(light)
+              }
+              this.approachLights.push(light)
+            }
+          }
+        }
+        
+        // 4. Green threshold bar - continuous row across runway width plus 45 ft on each side
+        const greenMat = new BABYLON.StandardMaterial('thresholdGreen', this.scene)
+        greenMat.emissiveColor = new BABYLON.Color3(0, 1, 0)
+        greenMat.diffuseColor = new BABYLON.Color3(0, 1, 0)
+        
+        // Threshold bar extends 45 ft beyond each runway edge
+        const thresholdBarWidth = runwayWidthM + feetToMeters(90) // 150 ft runway + 90 ft total extension
+        const thresholdLightSpacing = feetToMeters(5) // 5 ft centers per spec
+        const numThresholdLights = Math.floor(thresholdBarWidth / thresholdLightSpacing)
+        
+        for (let i = 0; i <= numThresholdLights; i++) {
+          const x = -thresholdBarWidth / 2 + i * thresholdLightSpacing
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `alsf2_threshold_${i}`,
+            { diameter: 0.8, segments: 8 },
+            this.scene,
+          )
+          light.position.set(x, 1, 0) // At runway threshold
+          light.material = greenMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.approachLights.push(light)
+        }
+        
+        // 5. Touchdown zone lights (white barrettes) - similar geometry to red side bars
+        // Located at 100 ft intervals from 100-1000 ft on runway
+        const tdzStations = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+        for (const ft of tdzStations) {
+          const z = feetToMeters(ft) // Positive z for runway surface
+          for (let side = -1; side <= 1; side += 2) {
+            // Create a barrette of 3 lights like the red side bars
+            for (let i = 0; i < 3; i++) {
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `alsf2_tdz_${ft}_${side}_${i}`,
+                { diameter: 0.6, segments: 8 },
+                this.scene,
+              )
+              // Same lateral positioning as red side bars but on the runway
+              const x = side * feetToMeters(40 + i * 5) // 40, 45, 50 ft from centerline
+              light.position.set(x, 1, z)
+              light.material = whiteMat
+              if (this.glowLayer) {
+                this.glowLayer.addIncludedOnlyMesh(light)
+              }
+              this.runwayLights.push(light) // Add to runway lights, not approach lights
+            }
+          }
+        }
+        
+        // 6. Sequenced flashers - from 1000 ft to end of system (2400 ft)
+        // One at each centerline bar position, flashing toward threshold at 2 Hz
+        for (let ft = 1000; ft <= 2400; ft += 100) {
           const z = -feetToMeters(ft)
           const flasher = BABYLON.MeshBuilder.CreateSphere(
             `alsf2_seq_${ft}`,
-            { diameter: 2, segments: 8 }, // Larger for sequenced flashers
+            { diameter: 1.5, segments: 8 }, // Bluish-white sequenced flasher
             this.scene,
           )
           flasher.position.set(0, 3, z)
@@ -848,6 +795,8 @@ export class SceneManager {
           this.sequencedFlashers.push(flasher)
           this.approachLights.push(flasher)
         }
+
+        // REILs are handled separately in createRunwayEdgeLights
 
         this.startRabbitSequence()
         this.createRunwayCenterlineLights() // Add RCLS for ALSF-II
@@ -855,90 +804,141 @@ export class SceneManager {
       }
 
       case 'ALSF-I': {
-        // ALSF-I: Same as ALSF-II but with terminating bar instead of red side rows
-        // Centerline lights every 100 ft
-        for (let ft = 100; ft <= 2400; ft += 100) {
+        // ALSF-1: 3000 ft system for CAT I runways
+        // Station 0+00 at threshold, higher numbers into approach
+        
+        // 1. Centerline barrettes - every 100 ft from station 1+00 to 30+00
+        // Each barrette: 5 lights at 40.5 inch (1.03m) spacing
+        const barrSpacing = feetToMeters(40.5 / 12) // Convert inches to feet then meters
+        for (let ft = 100; ft <= 3000; ft += 100) {
           const z = -feetToMeters(ft)
-          const centerLight = BABYLON.MeshBuilder.CreateSphere(
-            `alsf1_center_${ft}`,
-            { diameter: 0.6, segments: 8 }, // Small approach light
-            this.scene,
-          )
-          centerLight.position.set(0, 2, z)
-          centerLight.material = whiteMat
-          this.approachLights.push(centerLight)
-        }
-
-        // Decision bar at 1000 ft
-        const decisionZ = -feetToMeters(1000)
-        for (let x = -22.86; x <= 22.86; x += 1.2) {
-          const decisionLight = BABYLON.MeshBuilder.CreateSphere(
-            `alsf1_decision_${x}`,
-            { diameter: 0.5, segments: 8 }, // Small light
-            this.scene,
-          )
-          decisionLight.position.set(x, 2, decisionZ)
-          decisionLight.material = whiteMat
-          if (this.glowLayer) {
-            this.glowLayer.addIncludedOnlyMesh(decisionLight)
-          }
-          this.approachLights.push(decisionLight)
-        }
-
-        // Terminating bar at 200 ft (red lights in wing shape)
-        const termZ = -feetToMeters(200)
-        // Left wing
-        for (let i = 0; i < 8; i++) {
-          const x = -4 - i * 1.5
-          const wingLight = BABYLON.MeshBuilder.CreateSphere(
-            `alsf1_wing_left_${i}`,
-            { diameter: 0.5, segments: 8 }, // Small light
-            this.scene,
-          )
-          wingLight.position.set(x, 2, termZ - i * 0.5)
-          wingLight.material = redMat
-          this.approachLights.push(wingLight)
-        }
-        // Right wing
-        for (let i = 0; i < 8; i++) {
-          const x = 4 + i * 1.5
-          const wingLight = BABYLON.MeshBuilder.CreateSphere(
-            `alsf1_wing_right_${i}`,
-            { diameter: 0.5, segments: 8 }, // Small light
-            this.scene,
-          )
-          wingLight.position.set(x, 2, termZ - i * 0.5)
-          wingLight.material = redMat
-          this.approachLights.push(wingLight)
-        }
-
-        // Light bars at 500 ft intervals
-        const barPositions = [500, 1500, 2000]
-        for (const ft of barPositions) {
-          const z = -feetToMeters(ft)
-          for (let x = -13.7; x <= 13.7; x += 2.74) {
-            if (Math.abs(x) > 1) {
-              const barLight = BABYLON.MeshBuilder.CreateSphere(
-                `alsf1_bar_${ft}_${x}`,
-                { diameter: 0.5, segments: 8 }, // Small light
+          
+          if (ft === 1000) {
+            // Station 10+00: Special 1000 ft crossbar with centerline barrette
+            // Center barrette (5 lights)
+            for (let i = -2; i <= 2; i++) {
+              const x = i * barrSpacing
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `alsf1_1000_center_${i}`,
+                { diameter: 0.6, segments: 8 },
                 this.scene,
               )
-              barLight.position.set(x, 2, z)
-              barLight.material = whiteMat
+              light.position.set(x, 2, z)
+              light.material = whiteMat
               if (this.glowLayer) {
-                this.glowLayer.addIncludedOnlyMesh(barLight)
+                this.glowLayer.addIncludedOnlyMesh(light)
               }
-              this.approachLights.push(barLight)
+              this.approachLights.push(light)
+            }
+            
+            // Side barrettes - 8 lights each at 5 ft spacing, outermost at 50 ft
+            for (let side = -1; side <= 1; side += 2) {
+              for (let i = 0; i < 8; i++) {
+                const x = side * (feetToMeters(22.5) + i * feetToMeters(5))
+                const light = BABYLON.MeshBuilder.CreateSphere(
+                  `alsf1_1000_side_${side}_${i}`,
+                  { diameter: 0.6, segments: 8 },
+                  this.scene,
+                )
+                light.position.set(x, 2, z)
+                light.material = whiteMat
+                if (this.glowLayer) {
+                  this.glowLayer.addIncludedOnlyMesh(light)
+                }
+                this.approachLights.push(light)
+              }
+            }
+          } else {
+            // Standard centerline barrette - 5 lights at 40.5 inch spacing
+            for (let i = -2; i <= 2; i++) {
+              const x = i * barrSpacing
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `alsf1_bar_${ft}_${i}`,
+                { diameter: 0.6, segments: 8 },
+                this.scene,
+              )
+              light.position.set(x, 2, z)
+              light.material = whiteMat
+              if (this.glowLayer) {
+                this.glowLayer.addIncludedOnlyMesh(light)
+              }
+              this.approachLights.push(light)
             }
           }
         }
-
-        // Sequenced flashers
-        for (let ft = 200; ft <= 2200; ft += 200) {
+        
+        // 2. Pre-threshold bar at station 1+00 (100 ft) - RED
+        // Two barrettes, 5 lights each at 3.5 ft centers
+        // Innermost lights 75-80 ft from centerline
+        const preThresholdZ = -feetToMeters(100)
+        for (let side = -1; side <= 1; side += 2) {
+          for (let i = 0; i < 5; i++) {
+            const x = side * (feetToMeters(75) + i * feetToMeters(3.5))
+            const light = BABYLON.MeshBuilder.CreateSphere(
+              `alsf1_prethresh_${side}_${i}`,
+              { diameter: 0.6, segments: 8 },
+              this.scene,
+            )
+            light.position.set(x, 2, preThresholdZ)
+            light.material = redMat
+            if (this.glowLayer) {
+              this.glowLayer.addIncludedOnlyMesh(light)
+            }
+            this.approachLights.push(light)
+          }
+        }
+        
+        // 3. Terminating bar at station 2+00 (200 ft) - RED
+        // Two barrettes, 3 lights each at 5 ft centers
+        // Outermost lights 25 ft from centerline
+        const termZ = -feetToMeters(200)
+        for (let side = -1; side <= 1; side += 2) {
+          for (let i = 0; i < 3; i++) {
+            const x = side * (feetToMeters(15) + i * feetToMeters(5))
+            const light = BABYLON.MeshBuilder.CreateSphere(
+              `alsf1_term_${side}_${i}`,
+              { diameter: 0.6, segments: 8 },
+              this.scene,
+            )
+            light.position.set(x, 2, termZ)
+            light.material = redMat
+            if (this.glowLayer) {
+              this.glowLayer.addIncludedOnlyMesh(light)
+            }
+            this.approachLights.push(light)
+          }
+        }
+        
+        // 4. Green threshold bar (same as ALSF-2)
+        const greenMat = new BABYLON.StandardMaterial('alsf1ThresholdGreen', this.scene)
+        greenMat.emissiveColor = new BABYLON.Color3(0, 1, 0)
+        greenMat.diffuseColor = new BABYLON.Color3(0, 1, 0)
+        
+        const thresholdBarWidth = runwayWidthM + feetToMeters(90)
+        const thresholdLightSpacing = feetToMeters(5)
+        const numThresholdLights = Math.floor(thresholdBarWidth / thresholdLightSpacing)
+        
+        for (let i = 0; i <= numThresholdLights; i++) {
+          const x = -thresholdBarWidth / 2 + i * thresholdLightSpacing
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `alsf1_threshold_${i}`,
+            { diameter: 0.8, segments: 8 },
+            this.scene,
+          )
+          light.position.set(x, 1, 0)
+          light.material = greenMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.approachLights.push(light)
+        }
+        
+        // 5. Sequenced flashers - 21 lights from station 10+00 to 30+00
+        for (let ft = 1000; ft <= 3000; ft += 100) {
           const z = -feetToMeters(ft)
           const flasher = BABYLON.MeshBuilder.CreateSphere(
             `alsf1_seq_${ft}`,
-            { diameter: 2, segments: 8 }, // Larger for sequenced flashers
+            { diameter: 1.5, segments: 8 },
             this.scene,
           )
           flasher.position.set(0, 3, z)
@@ -949,69 +949,37 @@ export class SceneManager {
           this.sequencedFlashers.push(flasher)
           this.approachLights.push(flasher)
         }
+
+        // REILs are handled separately in createRunwayEdgeLights
 
         this.startRabbitSequence()
         this.createRunwayCenterlineLights() // Add RCLS for ALSF-I
         break
       }
 
-      case 'MALSR': {
-        // MALSR: 2400 ft with lights every 200 ft
-        // Centerline lights every 200 ft (61m)
-        for (let ft = 200; ft <= 2400; ft += 200) {
-          const z = -feetToMeters(ft)
-          const centerLight = BABYLON.MeshBuilder.CreateSphere(
-            `malsr_center_${ft}`,
-            { diameter: 0.6, segments: 8 }, // Small approach light
-            this.scene,
-          )
-          centerLight.position.set(0, 2, z)
-          centerLight.material = whiteMat
-          this.approachLights.push(centerLight)
-        }
-
-        // Triple bar at 1000 ft (15 lights across 40 ft)
-        const decisionZ = -feetToMeters(1000)
-        for (let x = -6.1; x <= 6.1; x += 0.87) {
-          const barLight = BABYLON.MeshBuilder.CreateSphere(
-            `malsr_bar_${x}`,
-            { diameter: 0.5, segments: 8 }, // Small light
-            this.scene,
-          )
-          barLight.position.set(x, 2, decisionZ)
-          barLight.material = whiteMat
-          this.approachLights.push(barLight)
-        }
-
-        // Light bars at 200, 400, 600, 800, 1200, 1400, 1600, 1800, 2000, 2200, 2400 ft
-        // (5 lights each, 20 ft spacing)
-        for (let ft = 200; ft <= 2400; ft += 200) {
-          if (ft !== 1000) {
-            // Skip 1000 ft as it has the triple bar
-            const z = -feetToMeters(ft)
-            for (let i = -2; i <= 2; i++) {
-              const x = i * 3.05 // 10 ft spacing
-              const barLight = BABYLON.MeshBuilder.CreateSphere(
-                `malsr_bar_${ft}_${i}`,
-                { diameter: 0.5, segments: 8 }, // Small light
-                this.scene,
-              )
-              barLight.position.set(x, 2, z)
-              barLight.material = whiteMat
-              if (this.glowLayer) {
-                this.glowLayer.addIncludedOnlyMesh(barLight)
-              }
-              this.approachLights.push(barLight)
-            }
-          }
-        }
-
-        // Sequenced flashers every 200 ft
-        for (let ft = 200; ft <= 2400; ft += 200) {
+      case 'MALS': {
+        // MALS: Medium-intensity Approach Lighting System (base configuration)
+        
+        // Create the base MALS components
+        this.createMALSBase('mals', whiteMat)
+        
+        // No sequenced flashers for base MALS
+        break
+      }
+      
+      case 'MALSF': {
+        // MALSF: MALS with three sequenced flashers at last three stations
+        
+        // Create the base MALS components
+        this.createMALSBase('malsf', whiteMat)
+        
+        // Add three sequenced flashers at last three stations (1000, 1200, 1400 ft)
+        const flasherPositions = [1000, 1200, 1400]
+        for (const ft of flasherPositions) {
           const z = -feetToMeters(ft)
           const flasher = BABYLON.MeshBuilder.CreateSphere(
-            `malsr_seq_${ft}`,
-            { diameter: 2, segments: 8 }, // Larger for sequenced flashers
+            `malsf_seq_${ft}`,
+            { diameter: 1.5, segments: 8 },
             this.scene,
           )
           flasher.position.set(0, 3, z)
@@ -1022,63 +990,134 @@ export class SceneManager {
           this.sequencedFlashers.push(flasher)
           this.approachLights.push(flasher)
         }
-
-        // REIL (Runway End Identifier Lights)
-        for (let side = -1; side <= 1; side += 2) {
-          const reil = BABYLON.MeshBuilder.CreateSphere(
-            `malsr_reil_${side}`,
-            { diameter: 2, segments: 8 }, // Same size as sequenced flashers
+        
+        this.startRabbitSequence()
+        break
+      }
+      
+      case 'MALSR': {
+        // MALSR: MALS plus RAIL (for CAT I runways)
+        
+        // Create the base MALS components
+        this.createMALSBase('malsr', whiteMat)
+        
+        // RAIL sequenced flashers - 5 flashers from 1600 to 2400 ft
+        // First flasher is 200 ft beyond MALS end (1400 ft)
+        for (let ft = 1600; ft <= 2400; ft += 200) {
+          const z = -feetToMeters(ft)
+          const flasher = BABYLON.MeshBuilder.CreateSphere(
+            `malsr_seq_${ft}`,
+            { diameter: 1.5, segments: 8 },
             this.scene,
           )
-          reil.position.set(side * (runwayWidthM / 2 + 10), 3, -30)
-          reil.material = strobeMat
+          flasher.position.set(0, 3, z)
+          flasher.material = strobeMat
           if (this.glowLayer) {
-            this.glowLayer.addIncludedOnlyMesh(reil)
+            this.glowLayer.addIncludedOnlyMesh(flasher)
           }
-          this.reilLights.push(reil)
+          this.sequencedFlashers.push(flasher)
+          this.approachLights.push(flasher)
         }
-        this.startRabbitSequence() // Add sequenced flashing for MALSR
-        this.startREILFlashing()
-        this.createRunwayCenterlineLights() // Add RCLS for MALSR
+        
+        this.startRabbitSequence()
         break
       }
 
       case 'SSALR': {
-        // SSALR: Simplified Short Approach Lighting with REIL
-        // 2400 ft length, similar to MALSR but with higher intensity
-        // Centerline lights every 200 ft
-        for (let ft = 200; ft <= 2400; ft += 200) {
+        // SSALR: Simplified Short Approach Lighting System with RAIL
+        // Operated as a subsystem of ALSF-2
+        
+        // 1. Seven five-light centerline bars from 200 to 1400 ft at 200 ft intervals
+        for (let ft = 200; ft <= 1400; ft += 200) {
           const z = -feetToMeters(ft)
-          const centerLight = BABYLON.MeshBuilder.CreateSphere(
-            `ssalr_center_${ft}`,
-            { diameter: 0.6, segments: 8 }, // Small approach light
+          
+          if (ft === 1000) {
+            // Special 1000 ft crossbar - 70 ft wide total
+            // Center bar (5 lights with 40.5 inch spacing)
+            const centerSpacing = feetToMeters(40.5 / 12) // Convert inches to feet then meters
+            for (let i = -2; i <= 2; i++) {
+              const x = i * centerSpacing
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `ssalr_1000_center_${i}`,
+                { diameter: 0.6, segments: 8 },
+                this.scene,
+              )
+              light.position.set(x, 2, z)
+              light.material = whiteMat
+              if (this.glowLayer) {
+                this.glowLayer.addIncludedOnlyMesh(light)
+              }
+              this.approachLights.push(light)
+            }
+            
+            // Side bars - one on each side, 5 lights each with 5 ft spacing
+            for (let side = -1; side <= 1; side += 2) {
+              for (let i = 0; i < 5; i++) {
+                // Position to create 70 ft total crossbar width
+                const x = side * (feetToMeters(15) + i * feetToMeters(5))
+                const light = BABYLON.MeshBuilder.CreateSphere(
+                  `ssalr_1000_side_${side}_${i}`,
+                  { diameter: 0.6, segments: 8 },
+                  this.scene,
+                )
+                light.position.set(x, 2, z)
+                light.material = whiteMat
+                if (this.glowLayer) {
+                  this.glowLayer.addIncludedOnlyMesh(light)
+                }
+                this.approachLights.push(light)
+              }
+            }
+          } else {
+            // Standard centerline bar - 5 lights with 40.5 inch spacing
+            const barSpacing = feetToMeters(40.5 / 12) // Convert inches to feet then meters
+            for (let i = -2; i <= 2; i++) {
+              const x = i * barSpacing
+              const light = BABYLON.MeshBuilder.CreateSphere(
+                `ssalr_bar_${ft}_${i}`,
+                { diameter: 0.6, segments: 8 },
+                this.scene,
+              )
+              light.position.set(x, 2, z)
+              light.material = whiteMat
+              if (this.glowLayer) {
+                this.glowLayer.addIncludedOnlyMesh(light)
+              }
+              this.approachLights.push(light)
+            }
+          }
+        }
+        
+        // 2. Green threshold bar - lights on 10 ft centers across runway
+        const greenMat = new BABYLON.StandardMaterial('ssalrThresholdGreen', this.scene)
+        greenMat.emissiveColor = new BABYLON.Color3(0, 1, 0)
+        greenMat.diffuseColor = new BABYLON.Color3(0, 1, 0)
+        
+        const thresholdSpacing = feetToMeters(10) // 10 ft centers
+        const numThresholdLights = Math.floor(runwayWidthM / thresholdSpacing)
+        
+        for (let i = 0; i <= numThresholdLights; i++) {
+          const x = -runwayWidthM / 2 + i * thresholdSpacing
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `ssalr_threshold_${i}`,
+            { diameter: 0.8, segments: 8 },
             this.scene,
           )
-          centerLight.position.set(0, 2, z)
-          centerLight.material = whiteMat
-          this.approachLights.push(centerLight)
+          light.position.set(x, 1, 0) // At runway threshold
+          light.material = greenMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.approachLights.push(light)
         }
-
-        // Bar at 1000 ft (5 lights)
-        const decisionZ = -feetToMeters(1000)
-        for (let i = -2; i <= 2; i++) {
-          const x = i * 4.57 // 15 ft spacing
-          const barLight = BABYLON.MeshBuilder.CreateSphere(
-            `ssalr_bar_${i}`,
-            { diameter: 0.6, segments: 8 }, // Small approach light
-            this.scene,
-          )
-          barLight.position.set(x, 2, decisionZ)
-          barLight.material = whiteMat
-          this.approachLights.push(barLight)
-        }
-
-        // Sequenced flashers every 200 ft (higher intensity)
-        for (let ft = 200; ft <= 2400; ft += 200) {
+        
+        // 3. RAIL sequenced flashers - 5 flashers from 1600 to 2400 ft
+        // First flasher is 200 ft beyond last steady light (1400 ft), so starts at 1600 ft
+        for (let ft = 1600; ft <= 2400; ft += 200) {
           const z = -feetToMeters(ft)
           const flasher = BABYLON.MeshBuilder.CreateSphere(
             `ssalr_seq_${ft}`,
-            { diameter: 2, segments: 8 }, // Same size as other sequenced flashers
+            { diameter: 1.5, segments: 8 },
             this.scene,
           )
           flasher.position.set(0, 3, z)
@@ -1090,40 +1129,61 @@ export class SceneManager {
           this.approachLights.push(flasher)
         }
 
-        // REIL (high intensity)
-        for (let side = -1; side <= 1; side += 2) {
-          const reil = BABYLON.MeshBuilder.CreateSphere(
-            `ssalr_reil_${side}`,
-            { diameter: 2, segments: 8 }, // Same size as sequenced flashers
-            this.scene,
-          )
-          reil.position.set(side * (runwayWidthM / 2 + 10), 3, -30)
-          reil.material = strobeMat
-          if (this.glowLayer) {
-            this.glowLayer.addIncludedOnlyMesh(reil)
-          }
-          this.reilLights.push(reil)
-        }
+        // REILs are handled separately in createRunwayEdgeLights
         this.startRabbitSequence() // Add sequenced flashing for SSALR
-        this.startREILFlashing()
         break
       }
-
-      case 'REIL': {
-        for (let side = -1; side <= 1; side += 2) {
-          const reil = BABYLON.MeshBuilder.CreateSphere(
-            `reil_${side}`,
-            { diameter: 2, segments: 8 }, // Same size as sequenced flashers
+      
+      case 'ODALS': {
+        // ODALS: Omnidirectional Approach Lighting System
+        // 7 omnidirectional flashing lights for nonprecision runways
+        
+        // 1. Five lights on runway centerline extended (300-1500 ft at 300 ft intervals)
+        for (let ft = 300; ft <= 1500; ft += 300) {
+          const z = -feetToMeters(ft)
+          const odal = BABYLON.MeshBuilder.CreateSphere(
+            `odals_center_${ft}`,
+            { diameter: 2, segments: 8 }, // Omnidirectional flasher
             this.scene,
           )
-          reil.position.set(side * (runwayWidthM / 2 + 10), 3, -30)
-          reil.material = strobeMat
+          odal.position.set(0, 3, z)
+          odal.material = strobeMat
           if (this.glowLayer) {
-            this.glowLayer.addIncludedOnlyMesh(reil)
+            this.glowLayer.addIncludedOnlyMesh(odal)
           }
-          this.reilLights.push(reil)
+          this.sequencedFlashers.push(odal)
+          this.approachLights.push(odal)
         }
-        this.startREILFlashing()
+        
+        // 2. Two lights on each side of threshold
+        // 40 ft from runway edge (or 75 ft when VASI equipped)
+        const lateralDistance = this.approachStore.showPAPI ? feetToMeters(75) : feetToMeters(40)
+        const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
+        
+        for (let side = -1; side <= 1; side += 2) {
+          const odal = BABYLON.MeshBuilder.CreateSphere(
+            `odals_threshold_${side}`,
+            { diameter: 2, segments: 8 },
+            this.scene,
+          )
+          // Position from runway edge, not centerline
+          const x = side * (runwayWidthM / 2 + lateralDistance)
+          odal.position.set(x, 3, 0) // At threshold
+          odal.material = strobeMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(odal)
+          }
+          this.sequencedFlashers.push(odal)
+          this.approachLights.push(odal)
+        }
+        
+        // All ODALS lights flash in sequence
+        this.startRabbitSequence()
+        break
+      }
+      
+      case 'None': {
+        // No approach lighting
         break
       }
     }
@@ -1539,16 +1599,90 @@ export class SceneManager {
   }
 
   public updateSettings(): void {
-    // Clear and recreate runway markings when settings change
-    this.clearRunwayMarkings()
-    const runwayLengthM = feetToMeters(10000)
-    const runwayWidthM = feetToMeters(150)
+    // Recreate runway markings to reflect new settings
+    const runwayLengthM = feetToMeters(RUNWAY_LENGTH_FT)
+    const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
+    
+    // Clear ALL existing markings - be aggressive to prevent duplicates
+    const meshesToDispose: string[] = []
+    const meshesToRemove: BABYLON.Mesh[] = []
+    
+    this.scene.meshes.forEach((mesh) => {
+      // Check if this is ANY marking we should dispose
+      if (mesh.name.match(/^(threshold|zero|nine|centerline|edgeStripe|aimingPoint|tdz_)/)) {
+        meshesToDispose.push(mesh.name)
+        meshesToRemove.push(mesh as BABYLON.Mesh)
+      }
+    })
+    
+    // Dispose them all
+    meshesToRemove.forEach(mesh => {
+      mesh.dispose()
+    })
+    
+    
+    // Recreate markings with new settings
     this.createRunwayMarkings(runwayLengthM, runwayWidthM)
-
+    
+    // Update lighting
     this.updateLighting()
     this.setupWeatherEffects()
     if (!this.animationStore.isPlaying) {
       this.resetCameraPosition()
+    }
+  }
+
+  private createRunwayCenterlineLights(): void {
+    if (!this.approachStore.showRCLS) return
+
+    const runwayLengthM = feetToMeters(RUNWAY_LENGTH_FT)
+    const whiteMat = new BABYLON.StandardMaterial('rclsWhite', this.scene)
+    whiteMat.emissiveColor = new BABYLON.Color3(1, 1, 0.95)
+    whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
+
+    const redMat = new BABYLON.StandardMaterial('rclsRed', this.scene)
+    redMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
+    redMat.diffuseColor = new BABYLON.Color3(1, 0, 0)
+
+    const alternateMat = new BABYLON.StandardMaterial('rclsAlternate', this.scene)
+    alternateMat.emissiveColor = new BABYLON.Color3(1, 1, 0.95)
+    alternateMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
+
+    // RCLS lights are spaced at 50 ft intervals along the centerline
+    const spacingFt = 50
+    const spacingM = feetToMeters(spacingFt)
+    
+    // Last 3000 ft: alternating red/white
+    // Next 1000 ft: all white
+    // Remaining: white
+    const last3000ftM = feetToMeters(3000)
+    const last1000ftM = feetToMeters(1000)
+    
+    for (let i = 0; i * spacingM <= runwayLengthM; i++) {
+      const z = i * spacingM
+      const distanceFromEnd = runwayLengthM - z
+      
+      let material = whiteMat
+      
+      if (distanceFromEnd <= last1000ftM) {
+        // Last 1000 ft: alternating red/white
+        material = i % 2 === 0 ? redMat : alternateMat
+      } else if (distanceFromEnd <= last3000ftM) {
+        // Last 3000 ft (but not the final 1000): all white
+        material = whiteMat
+      }
+      
+      const light = BABYLON.MeshBuilder.CreateSphere(
+        `rcls_${i}`,
+        { diameter: 0.3, segments: 6 },
+        this.scene,
+      )
+      light.position.set(0, 0.1, z) // Embedded in runway surface
+      light.material = material
+      if (this.glowLayer) {
+        this.glowLayer.addIncludedOnlyMesh(light)
+      }
+      this.runwayLights.push(light)
     }
   }
 
@@ -1614,6 +1748,29 @@ export class SceneManager {
     }
   }
 
+  private createREILLights(): void {
+    const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
+    
+    const strobeMat = new BABYLON.StandardMaterial('reilStrobe', this.scene)
+    strobeMat.emissiveColor = new BABYLON.Color3(1, 1, 1)
+    strobeMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
+    
+    for (let side = -1; side <= 1; side += 2) {
+      const reil = BABYLON.MeshBuilder.CreateSphere(
+        `reil_standalone_${side}`,
+        { diameter: 2, segments: 8 },
+        this.scene,
+      )
+      reil.position.set(side * (runwayWidthM / 2 + 10), 3, -30)
+      reil.material = strobeMat
+      if (this.glowLayer) {
+        this.glowLayer.addIncludedOnlyMesh(reil)
+      }
+      this.reilLights.push(reil)
+    }
+    this.startREILFlashing()
+  }
+  
   private createPAPILights(): void {
     const tdzMeters = feetToMeters(TOUCHDOWN_ZONE_DISTANCE_FT)
     const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
@@ -1651,6 +1808,94 @@ export class SceneManager {
       }
       this.papiLights.push(papi)
     }
+  }
+
+  private createMALSBase(prefix: string, whiteMat: BABYLON.StandardMaterial): void {
+    const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
+    
+    // 1. Seven five-light centerline bars from 200 to 1400 ft at 200 ft intervals
+    const barSpacing = feetToMeters(2.5) // 2.5 ft spacing between lights
+    for (let ft = 200; ft <= 1400; ft += 200) {
+      const z = -feetToMeters(ft)
+      
+      if (ft === 1000) {
+        // Special 1000 ft crossbar - 66 ft wide total
+        // Center bar (5 lights)
+        for (let i = -2; i <= 2; i++) {
+          const x = i * barSpacing
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `${prefix}_1000_center_${i}`,
+            { diameter: 0.6, segments: 8 },
+            this.scene,
+          )
+          light.position.set(x, 2, z)
+          light.material = whiteMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.approachLights.push(light)
+        }
+        
+        // Side bars - one on each side (5 lights each, 2.5 ft spacing)
+        for (let side = -1; side <= 1; side += 2) {
+          for (let i = 0; i < 5; i++) {
+            // Position to create 66 ft total crossbar width
+            const x = side * (feetToMeters(13) + i * barSpacing)
+            const light = BABYLON.MeshBuilder.CreateSphere(
+              `${prefix}_1000_side_${side}_${i}`,
+              { diameter: 0.6, segments: 8 },
+              this.scene,
+            )
+            light.position.set(x, 2, z)
+            light.material = whiteMat
+            if (this.glowLayer) {
+              this.glowLayer.addIncludedOnlyMesh(light)
+            }
+            this.approachLights.push(light)
+          }
+        }
+      } else {
+        // Standard centerline bar - 5 lights with 2.5 ft spacing
+        for (let i = -2; i <= 2; i++) {
+          const x = i * barSpacing
+          const light = BABYLON.MeshBuilder.CreateSphere(
+            `${prefix}_bar_${ft}_${i}`,
+            { diameter: 0.6, segments: 8 },
+            this.scene,
+          )
+          light.position.set(x, 2, z)
+          light.material = whiteMat
+          if (this.glowLayer) {
+            this.glowLayer.addIncludedOnlyMesh(light)
+          }
+          this.approachLights.push(light)
+        }
+      }
+    }
+    
+    // 2. Green threshold bar - lights on 10 ft centers across runway
+    const greenMat = new BABYLON.StandardMaterial(`${prefix}ThresholdGreen`, this.scene)
+    greenMat.emissiveColor = new BABYLON.Color3(0, 1, 0)
+    greenMat.diffuseColor = new BABYLON.Color3(0, 1, 0)
+    
+    const thresholdSpacing = feetToMeters(10)
+    const numThresholdLights = Math.floor(runwayWidthM / thresholdSpacing)
+    
+    for (let i = 0; i <= numThresholdLights; i++) {
+      const x = -runwayWidthM / 2 + i * thresholdSpacing
+      const light = BABYLON.MeshBuilder.CreateSphere(
+        `${prefix}_threshold_${i}`,
+        { diameter: 0.8, segments: 8 },
+        this.scene,
+      )
+      light.position.set(x, 1, 0)
+      light.material = greenMat
+      if (this.glowLayer) {
+        this.glowLayer.addIncludedOnlyMesh(light)
+      }
+      this.approachLights.push(light)
+    }
+    // REILs are handled separately in createRunwayEdgeLights
   }
 
   private updatePAPILights(): void {
@@ -1699,6 +1944,11 @@ export class SceneManager {
     }
 
     let currentIndex = this.sequencedFlashers.length - 1
+    
+    // For 2 Hz (2 complete sequences per second), each sequence takes 500ms
+    // With n lights, each light should be visible for 500ms/n
+    const sequenceTime = 500 // milliseconds for complete sequence
+    const timePerLight = Math.floor(sequenceTime / Math.max(1, this.sequencedFlashers.length))
 
     this.rabbitInterval = setInterval(() => {
       this.sequencedFlashers.forEach((flasher) => {
@@ -1713,7 +1963,7 @@ export class SceneManager {
       if (currentIndex < 0) {
         currentIndex = this.sequencedFlashers.length - 1
       }
-    }, 100) as unknown as number
+    }, timePerLight) as unknown as number
   }
 
   public dispose(): void {
