@@ -170,6 +170,11 @@ export class SceneManager {
       ? new BABYLON.Color3(0.15, 0.15, 0.15) // Dim moonlight reflection
       : new BABYLON.Color3(0.8, 0.8, 0.8) // Brighter for day visibility
 
+    // Check if this is a precision approach (not non-precision or circling)
+    const isPrecisionApproach =
+      this.approachStore.selectedMinimumId !== 'non-precision' &&
+      this.approachStore.selectedMinimumId !== 'circling'
+
     // FAA standard dimensions in feet
     const centerlineStripeLengthFt = 120
     const centerlineGapFt = 80
@@ -185,7 +190,7 @@ export class SceneManager {
     const aimingPointWidth = feetToMeters(aimingPointWidthFt)
 
     // Threshold markings - 8 stripes for runways 150+ ft wide
-    const numThresholdStripes = 12
+    const numThresholdStripes = 8
     const thresholdStripeWidth = feetToMeters(5.75)
     const thresholdStripeLength = feetToMeters(150)
     const thresholdGap =
@@ -387,36 +392,63 @@ export class SceneManager {
       aimingPoint.material = markingMat
     }
 
-    // Touchdown zone markings (500 ft intervals)
-    // Pattern: 3 bars at 500ft, 2 bars at 1000ft (covered by aiming point),
-    // 1 bar at 1500ft, 2 bars at 2000ft, 3 bars at 2500ft
-    const tdzPattern = [
-      { distance: 500, bars: 3 },
-      { distance: 1500, bars: 1 },
-      { distance: 2000, bars: 2 },
-      { distance: 2500, bars: 3 },
-    ]
+    // Touchdown zone markings (only for precision approaches)
+    if (isPrecisionApproach) {
+      // Pattern: 3 bars at 500ft, 2 bars at 1000ft, 1 bar at 1500ft,
+      // 1 bar at 2000ft, 2 bars at 2500ft, 3 bars at 3000ft
+      const tdzPattern = [
+        { distance: 500, bars: 3 },
+        { distance: 1000, bars: 2 },
+        { distance: 1500, bars: 1 },
+        { distance: 2000, bars: 1 },
+        { distance: 2500, bars: 2 },
+        { distance: 3000, bars: 3 },
+      ]
 
-    for (const marker of tdzPattern) {
-      for (let side = -1; side <= 1; side += 2) {
-        for (let bar = 0; bar < marker.bars; bar++) {
-          const tdz = BABYLON.MeshBuilder.CreateBox(
-            `tdz_${marker.distance}_${side}_${bar}`,
-            {
-              width: feetToMeters(4),
-              height: 0.05,
-              depth: feetToMeters(75),
-            },
-            this.scene,
-          )
-          const barSpacing = feetToMeters(5)
-          const groupWidth = marker.bars * feetToMeters(4) + (marker.bars - 1) * barSpacing
-          const xOffset = -groupWidth / 2 + bar * (feetToMeters(4) + barSpacing) + feetToMeters(2)
-          tdz.position.z = feetToMeters(marker.distance)
-          tdz.position.x = side * feetToMeters(35) + xOffset
-          tdz.position.y = 0.2
-          tdz.material = markingMat
+      for (const marker of tdzPattern) {
+        for (let side = -1; side <= 1; side += 2) {
+          for (let bar = 0; bar < marker.bars; bar++) {
+            const tdz = BABYLON.MeshBuilder.CreateBox(
+              `tdz_${marker.distance}_${side}_${bar}`,
+              {
+                width: feetToMeters(4),
+                height: 0.05,
+                depth: feetToMeters(75),
+              },
+              this.scene,
+            )
+            const barSpacing = feetToMeters(5)
+            const groupWidth = marker.bars * feetToMeters(4) + (marker.bars - 1) * barSpacing
+            const xOffset = -groupWidth / 2 + bar * (feetToMeters(4) + barSpacing) + feetToMeters(2)
+            tdz.position.z = feetToMeters(marker.distance)
+            tdz.position.x = side * feetToMeters(35) + xOffset
+            tdz.position.y = 0.2
+            tdz.material = markingMat
+          }
         }
+      }
+    }
+
+    // Runway side stripe markings (only for precision approaches)
+    if (isPrecisionApproach) {
+      const sideStripeWidth = feetToMeters(3) // 3 ft wide stripes
+      const sideStripeOffset = width / 2 - sideStripeWidth / 2 // Position at runway edge
+
+      // Create side stripes for both edges
+      for (let side = -1; side <= 1; side += 2) {
+        const sideStripe = BABYLON.MeshBuilder.CreateBox(
+          `sideStripe_${side}`,
+          {
+            width: sideStripeWidth,
+            height: 0.05,
+            depth: length,
+          },
+          this.scene,
+        )
+        sideStripe.position.x = side * sideStripeOffset
+        sideStripe.position.z = length / 2
+        sideStripe.position.y = 0.2
+        sideStripe.material = markingMat
       }
     }
   }
@@ -449,6 +481,25 @@ export class SceneManager {
       clearInterval(this.rabbitInterval)
       this.rabbitInterval = null
     }
+  }
+
+  private clearRunwayMarkings(): void {
+    // Clear all runway marking meshes
+    const markingNames = [
+      'threshold',
+      'zero',
+      'nine',
+      'centerline',
+      'aimingPoint',
+      'tdz_',
+      'sideStripe_',
+    ]
+
+    this.scene.meshes.forEach((mesh) => {
+      if (markingNames.some((name) => mesh.name.includes(name))) {
+        mesh.dispose()
+      }
+    })
   }
 
   private createRunwayCenterlineLights(): void {
@@ -1488,6 +1539,12 @@ export class SceneManager {
   }
 
   public updateSettings(): void {
+    // Clear and recreate runway markings when settings change
+    this.clearRunwayMarkings()
+    const runwayLengthM = feetToMeters(10000)
+    const runwayWidthM = feetToMeters(150)
+    this.createRunwayMarkings(runwayLengthM, runwayWidthM)
+
     this.updateLighting()
     this.setupWeatherEffects()
     if (!this.animationStore.isPlaying) {
