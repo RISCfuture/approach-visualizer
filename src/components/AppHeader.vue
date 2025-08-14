@@ -9,6 +9,7 @@ import { useAnimationStore } from '@/stores/animation'
 import { APPROACH_MINIMA, LIGHTING_TYPES } from '@/types/approach'
 
 const VISIBILITY_OPTIONS = [
+  { label: '300 RVR', value: 300, unit: 'RVR' },
   { label: '600 RVR', value: 600, unit: 'RVR' },
   { label: '1200 RVR', value: 1200, unit: 'RVR' },
   { label: '1800 RVR', value: 1800, unit: 'RVR' },
