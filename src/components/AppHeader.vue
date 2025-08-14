@@ -254,6 +254,26 @@ const visibilityTickMarks = computed(() => {
 
   // Red side bars at 1000 ft (ALSF-II only) - covered by decision bar tick
 
+  // Alert Height at 100 ft for CAT IIIa/b approaches
+  if (
+    approachStore.selectedMinimumId === 'cat-iiia' ||
+    approachStore.selectedMinimumId === 'cat-iiib'
+  ) {
+    // Calculate distance for 100 ft altitude on glidepath
+    const angleRadians = (3 * Math.PI) / 180 // 3 degree glideslope
+    const distanceFor100ft = 100 / (Math.tan(angleRadians) * 6076.12) // distance in nm
+    const distanceFromThreshold = distanceFor100ft + 1000 / 6076.12 // add touchdown zone distance
+    const alertHeightPosition = calculateSliderPosition(distanceFromThreshold * 6076.12)
+
+    if (alertHeightPosition >= 0 && alertHeightPosition <= 100) {
+      marks.push({
+        position: alertHeightPosition,
+        label: 'Alert Height (100 ft)',
+        class: 'tick-alert-height',
+      })
+    }
+  }
+
   return marks
 })
 
@@ -527,6 +547,11 @@ onUnmounted(() => {
 /* Different colors for different tick types */
 .tick-flashers .tick-line {
   background: rgb(100 200 255 / 60%);
+}
+
+.tick-alert-height .tick-line {
+  background: rgb(255 200 100 / 80%);
+  height: 16px;
 }
 
 .tick-red-bars .tick-line {
