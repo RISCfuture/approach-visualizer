@@ -466,9 +466,14 @@ export class SceneManager {
     const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
     const lightSpacing = 60
 
+    // Material definitions
     const whiteMat = new BABYLON.StandardMaterial('whiteLight', this.scene)
     whiteMat.emissiveColor = new BABYLON.Color3(1, 1, 0.95)
     whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
+
+    const yellowMat = new BABYLON.StandardMaterial('yellowLight', this.scene)
+    yellowMat.emissiveColor = new BABYLON.Color3(1, 0.9, 0)
+    yellowMat.diffuseColor = new BABYLON.Color3(1, 1, 0)
 
     const greenMat = new BABYLON.StandardMaterial('greenLight', this.scene)
     greenMat.emissiveColor = new BABYLON.Color3(0, 1, 0)
@@ -478,11 +483,21 @@ export class SceneManager {
     redMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
     redMat.diffuseColor = new BABYLON.Color3(1, 0, 0)
 
+    // Calculate caution zone length (last 2000 ft or half runway, whichever is less)
+    const cautionZoneLengthFt = Math.min(2000, RUNWAY_LENGTH_FT / 2)
+    const cautionZoneStartM = runwayLengthM - feetToMeters(cautionZoneLengthFt)
+
+    // Runway edge lights
     const numLights = Math.floor(runwayLengthM / lightSpacing)
     for (let i = 0; i <= numLights; i++) {
       const z = i * lightSpacing
-      const isThreshold = z < 300
-      const material = isThreshold ? whiteMat : whiteMat
+
+      // Determine light color based on position
+      let material = whiteMat
+      if (z >= cautionZoneStartM) {
+        // Yellow caution zone for last 2000 ft or half runway
+        material = yellowMat
+      }
 
       for (let side = -1; side <= 1; side += 2) {
         const light = BABYLON.MeshBuilder.CreateSphere(
@@ -501,10 +516,10 @@ export class SceneManager {
       }
     }
 
-    // Threshold lights (green)
+    // Threshold lights (green outward for landing aircraft)
     for (let x = -runwayWidthM / 2; x <= runwayWidthM / 2; x += runwayWidthM / 8) {
       const thresholdLight = BABYLON.MeshBuilder.CreateSphere(
-        `threshold_${x}`,
+        `threshold_green_${x}`,
         { diameter: 0.8, segments: 8 }, // Slightly larger for threshold
         this.scene,
       )
@@ -514,6 +529,53 @@ export class SceneManager {
         this.glowLayer.addIncludedOnlyMesh(thresholdLight)
       }
       this.runwayLights.push(thresholdLight)
+    }
+
+    // Runway end lights (red toward runway for departing aircraft)
+    // These are at the far end of the runway
+    for (let x = -runwayWidthM / 2; x <= runwayWidthM / 2; x += runwayWidthM / 8) {
+      const endLight = BABYLON.MeshBuilder.CreateSphere(
+        `runway_end_red_${x}`,
+        { diameter: 0.8, segments: 8 }, // Same size as threshold lights
+        this.scene,
+      )
+      endLight.position.set(x, 1, runwayLengthM - 5) // Near the end of runway
+      endLight.material = redMat
+      if (this.glowLayer) {
+        this.glowLayer.addIncludedOnlyMesh(endLight)
+      }
+      this.runwayLights.push(endLight)
+    }
+
+    // Add bi-directional lights at runway ends (red/green depending on direction)
+    // At threshold (0 ft) - red inward (for opposite direction departures)
+    for (let side = -1; side <= 1; side += 2) {
+      const thresholdEndLight = BABYLON.MeshBuilder.CreateSphere(
+        `threshold_end_${side}`,
+        { diameter: 0.6, segments: 8 },
+        this.scene,
+      )
+      thresholdEndLight.position.set(side * (runwayWidthM / 2 + 3), 1, 0)
+      thresholdEndLight.material = redMat // Red facing into runway
+      if (this.glowLayer) {
+        this.glowLayer.addIncludedOnlyMesh(thresholdEndLight)
+      }
+      this.runwayLights.push(thresholdEndLight)
+    }
+
+    // At far end - green outward (for opposite direction approaches)
+    for (let side = -1; side <= 1; side += 2) {
+      const farEndLight = BABYLON.MeshBuilder.CreateSphere(
+        `far_end_green_${side}`,
+        { diameter: 0.6, segments: 8 },
+        this.scene,
+      )
+      farEndLight.position.set(side * (runwayWidthM / 2 + 3), 1, runwayLengthM)
+      farEndLight.material = greenMat // Green facing outward
+      if (this.glowLayer) {
+        this.glowLayer.addIncludedOnlyMesh(farEndLight)
+      }
+      this.runwayLights.push(farEndLight)
     }
   }
 
