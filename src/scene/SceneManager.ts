@@ -564,8 +564,10 @@ export class SceneManager {
           this.approachLights.push(decisionLight)
         }
 
-        // Red side row bars (500-1000 ft)
-        for (let ft = 500; ft <= 1000; ft += 100) {
+        // Red side row bars from terminating bar (200 ft) to runway threshold (0 ft)
+        // Plus from 500-1000 ft as per standard ALSF-2
+        const redSideRowPositions = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+        for (const ft of redSideRowPositions) {
           const z = -feetToMeters(ft)
           // Left side (10 lights)
           for (let i = 0; i < 10; i++) {
@@ -596,6 +598,42 @@ export class SceneManager {
               this.glowLayer.addIncludedOnlyMesh(sideLight)
             }
             this.approachLights.push(sideLight)
+          }
+        }
+
+        // Touchdown Zone Lights (TDZL) - white lights from threshold to 3000 ft
+        // Same geometry as side row lights but white instead of red
+        for (let ft = 100; ft <= 3000; ft += 100) {
+          const z = feetToMeters(ft) // Positive Z since these are on the runway
+          // Left side row (10 lights)
+          for (let i = 0; i < 10; i++) {
+            const x = -9.14 - i * 0.91 // Same spacing as red side rows
+            const tdzLight = BABYLON.MeshBuilder.CreateSphere(
+              `alsf2_tdzl_left_${ft}_${i}`,
+              { diameter: 0.4, segments: 8 }, // Same size as side row lights
+              this.scene,
+            )
+            tdzLight.position.set(x, 1, z)
+            tdzLight.material = whiteMat
+            if (this.glowLayer) {
+              this.glowLayer.addIncludedOnlyMesh(tdzLight)
+            }
+            this.runwayLights.push(tdzLight) // Add to runway lights array since they're on the runway
+          }
+          // Right side row (10 lights)
+          for (let i = 0; i < 10; i++) {
+            const x = 9.14 + i * 0.91 // Same spacing as red side rows
+            const tdzLight = BABYLON.MeshBuilder.CreateSphere(
+              `alsf2_tdzl_right_${ft}_${i}`,
+              { diameter: 0.4, segments: 8 }, // Same size as side row lights
+              this.scene,
+            )
+            tdzLight.position.set(x, 1, z)
+            tdzLight.material = whiteMat
+            if (this.glowLayer) {
+              this.glowLayer.addIncludedOnlyMesh(tdzLight)
+            }
+            this.runwayLights.push(tdzLight) // Add to runway lights array since they're on the runway
           }
         }
 
