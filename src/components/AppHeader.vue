@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted } from 'vue'
+import { computed, watch, onMounted, onUnmounted, ref } from 'vue'
 import Select from 'primevue/select'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 import Slider from 'primevue/slider'
+import Popover from 'primevue/popover'
+import Checkbox from 'primevue/checkbox'
 import { useApproachStore } from '@/stores/approach'
 import { useAnimationStore } from '@/stores/animation'
 import { APPROACH_MINIMA, LIGHTING_TYPES } from '@/types/approach'
 
 const VISIBILITY_OPTIONS = [
+  { label: '150 RVR', value: 150, unit: 'RVR' },
   { label: '300 RVR', value: 300, unit: 'RVR' },
   { label: '600 RVR', value: 600, unit: 'RVR' },
+  { label: '700 RVR', value: 700, unit: 'RVR' },
   { label: '1200 RVR', value: 1200, unit: 'RVR' },
   { label: '1800 RVR', value: 1800, unit: 'RVR' },
   { label: '2400 RVR', value: 2400, unit: 'RVR' },
@@ -22,6 +26,10 @@ const VISIBILITY_OPTIONS = [
 
 const approachStore = useApproachStore()
 const animationStore = useAnimationStore()
+
+// Popover refs
+const approachPopover = ref()
+const lightingPopover = ref()
 
 const selectedMinimum = computed({
   get: () => approachStore.selectedMinimumId,
@@ -44,7 +52,7 @@ const customVisibility = computed({
     // Find matching option
     return (
       VISIBILITY_OPTIONS.find((opt) => opt.value === currentValue && opt.unit === currentUnit) ||
-      VISIBILITY_OPTIONS[3]
+      VISIBILITY_OPTIONS[6]
     ) // Default to 2400 RVR
   },
   set: (option) => {
@@ -66,6 +74,53 @@ const lightingType = computed({
 const approachSpeed = computed({
   get: () => approachStore.approachSpeed,
   set: (value) => approachStore.setApproachSpeed(value),
+})
+
+// Computed properties for runway lighting components
+const showREIL = computed({
+  get: () => approachStore.showREIL,
+  set: (value) => approachStore.setShowREIL(value),
+})
+
+// REIL checkbox should be disabled for systems with built-in runway identification
+const reilDisabled = computed(() => {
+  return ['ALSF-II', 'ALSF-I', 'ODALS'].includes(approachStore.lightingType)
+})
+
+const showRCLS = computed({
+  get: () => approachStore.showRCLS,
+  set: (value) => approachStore.setShowRCLS(value),
+})
+
+const showEdgeLights = computed({
+  get: () => approachStore.showEdgeLights,
+  set: (value) => approachStore.setShowEdgeLights(value),
+})
+
+const showPAPI = computed({
+  get: () => approachStore.showPAPI,
+  set: (value) => approachStore.setShowPAPI(value),
+})
+
+// Computed properties for runway markings
+const showThresholdMarkings = computed({
+  get: () => approachStore.showThresholdMarkings,
+  set: (value) => approachStore.setShowThresholdMarkings(value),
+})
+
+const showTouchdownZone = computed({
+  get: () => approachStore.showTouchdownZone,
+  set: (value) => approachStore.setShowTouchdownZone(value),
+})
+
+const showSideStripes = computed({
+  get: () => approachStore.showSideStripes,
+  set: (value) => approachStore.setShowSideStripes(value),
+})
+
+const showAimPoint = computed({
+  get: () => approachStore.showAimPoint,
+  set: (value) => approachStore.setShowAimPoint(value),
 })
 
 const playButtonLabel = computed(() => {
@@ -317,43 +372,47 @@ onUnmounted(() => {
     <div class="header-content">
       <h1 class="app-title">Approach Visualizer</h1>
       <div class="form-controls">
-        <div class="form-field form-field-select">
-          <label for="approach-minimum">Approach Minimum</label>
-          <Select
-            v-model="selectedMinimum"
-            :options="APPROACH_MINIMA"
-            option-label="label"
-            option-value="id"
-            placeholder="Select minimum"
-            input-id="approach-minimum"
+        <div class="form-field-group">
+          <div class="form-field form-field-select">
+            <label for="approach-minimum">Approach Minimum</label>
+            <Select
+              v-model="selectedMinimum"
+              :options="APPROACH_MINIMA"
+              option-label="label"
+              option-value="id"
+              placeholder="Select minimum"
+              input-id="approach-minimum"
+            />
+          </div>
+          <Button
+            icon="pi pi-cog"
+            severity="secondary"
+            rounded
+            @click="(event: Event) => approachPopover.toggle(event)"
+            aria-label="Configure approach minimum"
+            class="config-button"
           />
         </div>
 
-        <div class="form-field form-field-number">
-          <label for="ceiling">Ceiling (ft)</label>
-          <InputNumber v-model="customCeiling" input-id="ceiling" :min="0" :max="1000" :step="50" />
-        </div>
-
-        <div class="form-field form-field-select-small">
-          <label for="visibility">Visibility</label>
-          <Select
-            v-model="customVisibility"
-            :options="VISIBILITY_OPTIONS"
-            option-label="label"
-            placeholder="Select visibility"
-            input-id="visibility"
-          />
-        </div>
-
-        <div class="form-field form-field-select">
-          <label for="lighting">Runway Lighting</label>
-          <Select
-            v-model="lightingType"
-            :options="LIGHTING_TYPES"
-            option-label="label"
-            option-value="value"
-            placeholder="Select lighting"
-            input-id="lighting"
+        <div class="form-field-group">
+          <div class="form-field form-field-select">
+            <label for="lighting">Runway Lighting</label>
+            <Select
+              v-model="lightingType"
+              :options="LIGHTING_TYPES"
+              option-label="label"
+              option-value="value"
+              placeholder="Select lighting"
+              input-id="lighting"
+            />
+          </div>
+          <Button
+            icon="pi pi-cog"
+            severity="secondary"
+            rounded
+            @click="(event: Event) => lightingPopover.toggle(event)"
+            aria-label="Configure runway lighting"
+            class="config-button"
           />
         </div>
 
@@ -408,6 +467,93 @@ onUnmounted(() => {
       </div>
     </div>
   </header>
+
+  <!-- Approach Minimum Configuration Popover -->
+  <Popover ref="approachPopover">
+    <div class="popover-content">
+      <h3 class="popover-title">Approach Minimum Configuration</h3>
+
+      <div class="popover-field">
+        <label for="popover-ceiling">Ceiling (ft)</label>
+        <InputNumber
+          v-model="customCeiling"
+          input-id="popover-ceiling"
+          :min="0"
+          :max="1000"
+          :step="50"
+          placeholder="Preset value"
+        />
+      </div>
+
+      <div class="popover-field">
+        <label for="popover-visibility">Visibility</label>
+        <Select
+          v-model="customVisibility"
+          :options="VISIBILITY_OPTIONS"
+          option-label="label"
+          placeholder="Preset value"
+          input-id="popover-visibility"
+        />
+      </div>
+    </div>
+  </Popover>
+
+  <!-- Runway Lighting Configuration Popover -->
+  <Popover ref="lightingPopover">
+    <div class="popover-content">
+      <h3 class="popover-title">Runway Lighting Configuration</h3>
+
+      <div class="popover-section">
+        <h4 class="popover-subtitle">Lighting Components</h4>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showREIL" input-id="check-reil" binary :disabled="reilDisabled" />
+          <label for="check-reil" :class="{ 'disabled-label': reilDisabled }">
+            REIL (Runway End Identifier Lights)
+          </label>
+        </div>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showRCLS" input-id="check-rcls" binary />
+          <label for="check-rcls">RCLS (Runway Centerline Lighting System)</label>
+        </div>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showEdgeLights" input-id="check-edge" binary />
+          <label for="check-edge">Edge Lights</label>
+        </div>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showPAPI" input-id="check-papi" binary />
+          <label for="check-papi">PAPI (Precision Approach Path Indicator)</label>
+        </div>
+      </div>
+
+      <div class="popover-section">
+        <h4 class="popover-subtitle">Runway Markings</h4>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showThresholdMarkings" input-id="check-threshold" binary />
+          <label for="check-threshold">Threshold Markings</label>
+        </div>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showTouchdownZone" input-id="check-tdz" binary />
+          <label for="check-tdz">Touchdown Zone Markings</label>
+        </div>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showSideStripes" input-id="check-stripes" binary />
+          <label for="check-stripes">Side Stripes</label>
+        </div>
+
+        <div class="checkbox-field">
+          <Checkbox v-model="showAimPoint" input-id="check-aim" binary />
+          <label for="check-aim">Aim Point Markings</label>
+        </div>
+      </div>
+    </div>
+  </Popover>
 </template>
 
 <style scoped>
@@ -442,6 +588,12 @@ onUnmounted(() => {
   align-items: flex-end;
   justify-content: center;
   padding: 0 0.5rem;
+}
+
+.form-field-group {
+  display: flex;
+  gap: 0.25rem;
+  align-items: flex-end;
 }
 
 .form-field {
@@ -568,6 +720,83 @@ onUnmounted(() => {
 
 .tick-papi .tick-line {
   background: rgb(255 200 100 / 60%);
+}
+
+/* Configure button styling */
+.config-button {
+  width: 32px !important;
+  height: 32px !important;
+  opacity: 1;
+}
+
+/* Popover content styling */
+.popover-content {
+  min-width: 300px;
+  padding: 1rem;
+}
+
+.popover-title {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.popover-section {
+  margin-bottom: 1.25rem;
+}
+
+.popover-section:last-child {
+  margin-bottom: 0;
+}
+
+.popover-subtitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.popover-field {
+  margin-bottom: 1rem;
+}
+
+.popover-field:last-child {
+  margin-bottom: 0;
+}
+
+.popover-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.checkbox-field {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.checkbox-field:last-child {
+  margin-bottom: 0;
+}
+
+.checkbox-field label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--p-text-color);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-field label.disabled-label {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Light mode (default) */

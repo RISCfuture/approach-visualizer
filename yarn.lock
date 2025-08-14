@@ -2396,6 +2396,7 @@ __metadata:
     postcss-html: "npm:^1.8.0"
     prettier: "npm:^3.6.2"
     primeflex: "npm:^4.0.0"
+    primeicons: "npm:^7.0.0"
     primevue: "npm:^4.3.7"
     stylelint: "npm:^16.23.1"
     stylelint-config-recess-order: "npm:^7.2.0"
@@ -5613,6 +5614,13 @@ __metadata:
   version: 4.0.0
   resolution: "primeflex@npm:4.0.0"
   checksum: 10c0/36516c2fc657aca018115bdceef601326d83f25b24c342c0b9bdc4ec92115e58735f0f628494d431ae9b9a441899bfbbca2159160954d70fa3ed7f6e2a95c8bf
+  languageName: node
+  linkType: hard
+
+"primeicons@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "primeicons@npm:7.0.0"
+  checksum: 10c0/a7f6344d6db49e785d2040b35f8cae761d15bb8f8ee70ade8981d45438245414e913fe7235921122aade2b0a11a032c98b44dc527be2da11aa791ff145099c06
   languageName: node
   linkType: hard
 
