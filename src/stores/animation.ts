@@ -43,10 +43,16 @@ export const useAnimationStore = defineStore('animation', () => {
     const minAltitudeAboveCeiling = 50
     const minDistanceToTDZ =
       (ceiling + minAltitudeAboveCeiling) / (Math.tan(angleRadians) * FEET_PER_NM)
-    const minDistance = minDistanceToTDZ + TOUCHDOWN_ZONE_DISTANCE_FT / FEET_PER_NM
+    const minDistanceForCeiling = minDistanceToTDZ + TOUCHDOWN_ZONE_DISTANCE_FT / FEET_PER_NM
 
-    // Return the larger of calculated start or minimum distance
-    return Math.max(calculatedStart, minDistance)
+    // Ensure minimum starting altitude of 150 ft
+    const minStartingAltitude = 150
+    const minDistanceFor150ft =
+      minStartingAltitude / (Math.tan(angleRadians) * FEET_PER_NM) +
+      TOUCHDOWN_ZONE_DISTANCE_FT / FEET_PER_NM
+
+    // Return the larger of calculated start, ceiling minimum, or 150ft minimum
+    return Math.max(calculatedStart, minDistanceForCeiling, minDistanceFor150ft)
   })
 
   const currentAltitude = computed((): number => {
