@@ -44,14 +44,14 @@ export const APPROACH_MINIMA: ApproachMinimum[] = [
     id: 'cat-iiia',
     label: 'ILS CAT IIIa',
     ceiling: 50,
-    visibility: 700,
+    visibility: 600,
     visibilityUnit: 'RVR',
   },
   {
     id: 'cat-iiib',
     label: 'ILS CAT IIIb',
     ceiling: 50,
-    visibility: 150,
+    visibility: 300,
     visibilityUnit: 'RVR',
   },
   {
