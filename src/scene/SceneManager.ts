@@ -675,23 +675,7 @@ export class SceneManager {
           this.approachLights.push(flasher)
         }
 
-        // REIL (Runway End Identifier Lights) - included with ALSF-II
-        for (let side = -1; side <= 1; side += 2) {
-          const reil = BABYLON.MeshBuilder.CreateSphere(
-            `alsf2_reil_${side}`,
-            { diameter: 2, segments: 8 },
-            this.scene,
-          )
-          reil.position.set(side * (runwayWidthM / 2 + 10), 3, -30)
-          reil.material = strobeMat
-          if (this.glowLayer) {
-            this.glowLayer.addIncludedOnlyMesh(reil)
-          }
-          this.reilLights.push(reil)
-        }
-
         this.startRabbitSequence()
-        this.startREILFlashing()
         break
       }
 
@@ -791,23 +775,7 @@ export class SceneManager {
           this.approachLights.push(flasher)
         }
 
-        // REIL (Runway End Identifier Lights) - included with ALSF-II
-        for (let side = -1; side <= 1; side += 2) {
-          const reil = BABYLON.MeshBuilder.CreateSphere(
-            `alsf2_reil_${side}`,
-            { diameter: 2, segments: 8 },
-            this.scene,
-          )
-          reil.position.set(side * (runwayWidthM / 2 + 10), 3, -30)
-          reil.material = strobeMat
-          if (this.glowLayer) {
-            this.glowLayer.addIncludedOnlyMesh(reil)
-          }
-          this.reilLights.push(reil)
-        }
-
         this.startRabbitSequence()
-        this.startREILFlashing()
         break
       }
 
