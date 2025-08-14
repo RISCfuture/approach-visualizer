@@ -451,6 +451,67 @@ export class SceneManager {
     }
   }
 
+  private createRunwayCenterlineLights(): void {
+    // RCLS - Runway Centerline Lighting System
+    // Installed for precision approaches (ALSF-II, ALSF-I, MALSR)
+    const runwayLengthM = feetToMeters(RUNWAY_LENGTH_FT)
+
+    // Materials for centerline lights
+    const whiteCenterMat = new BABYLON.StandardMaterial('whiteCenterLight', this.scene)
+    whiteCenterMat.emissiveColor = new BABYLON.Color3(1, 1, 1)
+    whiteCenterMat.diffuseColor = new BABYLON.Color3(1, 1, 1)
+
+    const redCenterMat = new BABYLON.StandardMaterial('redCenterLight', this.scene)
+    redCenterMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
+    redCenterMat.diffuseColor = new BABYLON.Color3(1, 0, 0)
+
+    // Centerline lights every 50 feet
+    const lightSpacingFt = 50
+    const lightSpacingM = feetToMeters(lightSpacingFt)
+
+    // Calculate zones:
+    // - White: from threshold to (runway length - 3000 ft)
+    // - Alternating white/red: next 2000 ft
+    // - Red only: last 1000 ft
+    const redOnlyStartM = runwayLengthM - feetToMeters(1000)
+    const alternatingStartM = runwayLengthM - feetToMeters(3000)
+
+    const numLights = Math.floor(runwayLengthM / lightSpacingM)
+
+    for (let i = 0; i <= numLights; i++) {
+      const z = i * lightSpacingM
+
+      // Skip if too close to threshold (first 100 ft)
+      if (z < feetToMeters(100)) continue
+
+      let material = whiteCenterMat
+
+      if (z >= redOnlyStartM) {
+        // Last 1000 ft - all red
+        material = redCenterMat
+      } else if (z >= alternatingStartM) {
+        // 3000-1000 ft from end - alternating white/red
+        // Use modulo to alternate
+        const lightNum = Math.floor((z - alternatingStartM) / lightSpacingM)
+        material = lightNum % 2 === 0 ? whiteCenterMat : redCenterMat
+      }
+
+      const centerlineLight = BABYLON.MeshBuilder.CreateSphere(
+        `centerline_${i}`,
+        { diameter: 0.4, segments: 8 }, // Small embedded light
+        this.scene,
+      )
+      centerlineLight.position.set(0, 0.5, z) // Slightly above runway surface
+      centerlineLight.material = material
+
+      if (this.glowLayer) {
+        this.glowLayer.addIncludedOnlyMesh(centerlineLight)
+      }
+
+      this.runwayLights.push(centerlineLight)
+    }
+  }
+
   private createRunwayEdgeLights(): void {
     // Create or reuse glow layer for all lights
     if (!this.glowLayer) {
@@ -738,6 +799,7 @@ export class SceneManager {
         }
 
         this.startRabbitSequence()
+        this.createRunwayCenterlineLights() // Add RCLS for ALSF-II
         break
       }
 
@@ -838,6 +900,7 @@ export class SceneManager {
         }
 
         this.startRabbitSequence()
+        this.createRunwayCenterlineLights() // Add RCLS for ALSF-I
         break
       }
 
@@ -925,6 +988,7 @@ export class SceneManager {
         }
         this.startRabbitSequence() // Add sequenced flashing for MALSR
         this.startREILFlashing()
+        this.createRunwayCenterlineLights() // Add RCLS for MALSR
         break
       }
 
