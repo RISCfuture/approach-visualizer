@@ -6,33 +6,27 @@ test.describe('Approach Visualizer', () => {
     const header = page.locator('.app-header')
     await expect(header).toBeVisible({ timeout: 10000 })
     
-    // Check if form fields are overlapping
+    // Check that basic form elements are visible and positioned correctly
     const formFields = page.locator('.form-field')
     const count = await formFields.count()
     
-    for (let i = 0; i < count - 1; i++) {
-      const current = formFields.nth(i)
-      const next = formFields.nth(i + 1)
+    // Verify we have form fields
+    expect(count).toBeGreaterThan(0)
+    
+    // Check that each form field is visible and has reasonable dimensions
+    for (let i = 0; i < count; i++) {
+      const field = formFields.nth(i)
+      await expect(field).toBeVisible()
       
-      const currentBox = await current.boundingBox()
-      const nextBox = await next.boundingBox()
-      
-      if (currentBox && nextBox) {
-        // Check for horizontal overlap
-        const horizontalOverlap = currentBox.x + currentBox.width > nextBox.x && 
-                                 currentBox.x < nextBox.x + nextBox.width
-        
-        // Check for vertical overlap  
-        const verticalOverlap = currentBox.y + currentBox.height > nextBox.y &&
-                               currentBox.y < nextBox.y + nextBox.height
-        
-        if (horizontalOverlap && verticalOverlap) {
-          console.log(`[E2E] Overlap detected between control ${i} and ${i+1}`)
-        }
-      }
+      const box = await field.boundingBox()
+      expect(box).toBeTruthy()
+      expect(box!.width).toBeGreaterThan(0)
+      expect(box!.height).toBeGreaterThan(0)
     }
     
-    // Verify no overlaps were detected
-    // If overlaps exist, they would have been logged above
+    // Verify controls are accessible and not completely hidden
+    const controls = page.locator('button, input, select')
+    const controlCount = await controls.count()
+    expect(controlCount).toBeGreaterThan(0)
   })
 })

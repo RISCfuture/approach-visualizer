@@ -23,7 +23,15 @@ export interface ApproachSettings {
   showAimPoint: boolean
 }
 
-export type LightingType = 'ALSF-II' | 'ALSF-I' | 'MALSR' | 'SSALR' | 'MALS' | 'MALSF' | 'ODALS' | 'None'
+export type LightingType =
+  | 'ALSF-II'
+  | 'ALSF-I'
+  | 'MALSR'
+  | 'SSALR'
+  | 'MALS'
+  | 'MALSF'
+  | 'ODALS'
+  | 'None'
 
 export interface AnimationState {
   isPlaying: boolean
