@@ -8,7 +8,7 @@ import Popover from 'primevue/popover'
 import Checkbox from 'primevue/checkbox'
 import { useApproachStore } from '@/stores/approach'
 import { useAnimationStore } from '@/stores/animation'
-import { APPROACH_MINIMA, LIGHTING_TYPES } from '@/types/approach'
+import { APPROACH_MINIMA, LIGHTING_TYPES, GLIDESLOPE_ANGLE, FEET_PER_NM } from '@/types/approach'
 
 const VISIBILITY_OPTIONS = [
   { label: '150 RVR', value: 150, unit: 'RVR' },
@@ -152,15 +152,17 @@ function handleReset() {
 const positionSlider = computed({
   get: () => {
     // Convert current distance to percentage (0 = start, 100 = end)
+    const angleRadians = (GLIDESLOPE_ANGLE * Math.PI) / 180
     const totalDistance =
       animationStore.startingDistanceNm -
-      (10 / (Math.tan((3 * Math.PI) / 180) * 6076) + 1000 / 6076)
+      (10 / (Math.tan(angleRadians) * FEET_PER_NM) + 1000 / FEET_PER_NM)
     const distanceTraveled = animationStore.startingDistanceNm - animationStore.currentDistanceNm
     return Math.max(0, Math.min(100, (distanceTraveled / totalDistance) * 100))
   },
   set: (value) => {
     // Convert percentage to distance and set it
-    const endDistanceNm = 10 / (Math.tan((3 * Math.PI) / 180) * 6076) + 1000 / 6076
+    const angleRadians = (GLIDESLOPE_ANGLE * Math.PI) / 180
+    const endDistanceNm = 10 / (Math.tan(angleRadians) * FEET_PER_NM) + 1000 / FEET_PER_NM
     const totalDistance = animationStore.startingDistanceNm - endDistanceNm
     const targetDistance = animationStore.startingDistanceNm - (totalDistance * value) / 100
     animationStore.setDistance(targetDistance)
@@ -172,16 +174,17 @@ const startSlantDistance = computed(() => {
   // Starting position: 200 ft above ceiling
   const startAltitude = approachStore.effectiveCeiling + 200
   const startDistanceNm = animationStore.startingDistanceNm
-  const startDistanceFt = startDistanceNm * 6076
-  const slantNm = Math.sqrt(Math.pow(startAltitude, 2) + Math.pow(startDistanceFt, 2)) / 6076
+  const startDistanceFt = startDistanceNm * FEET_PER_NM
+  const slantNm = Math.sqrt(Math.pow(startAltitude, 2) + Math.pow(startDistanceFt, 2)) / FEET_PER_NM
   return slantNm.toFixed(1) // Return in NM with 1 decimal
 })
 
 const endSlantDistance = computed(() => {
   // End position: 10 ft above runway
   const endAltitude = 10
-  const endDistanceNm = 10 / (Math.tan((3 * Math.PI) / 180) * 6076) + 1000 / 6076
-  const endDistanceFt = endDistanceNm * 6076
+  const angleRadians = (GLIDESLOPE_ANGLE * Math.PI) / 180
+  const endDistanceNm = 10 / (Math.tan(angleRadians) * FEET_PER_NM) + 1000 / FEET_PER_NM
+  const endDistanceFt = endDistanceNm * FEET_PER_NM
   const slantFt = Math.sqrt(Math.pow(endAltitude, 2) + Math.pow(endDistanceFt, 2))
   return Math.round(slantFt / 100) * 100 // Round to nearest 100 ft
 })
@@ -190,15 +193,15 @@ const endSlantDistance = computed(() => {
 const cloudBreakoutPosition = computed(() => {
   // Calculate the exact distance where altitude equals ceiling
   const ceiling = approachStore.effectiveCeiling
-  const angleRadians = (3 * Math.PI) / 180 // 3 degree glideslope
+  const angleRadians = (GLIDESLOPE_ANGLE * Math.PI) / 180
 
   // Distance from touchdown zone to reach ceiling altitude
-  const distanceToTDZAtCeiling = ceiling / (Math.tan(angleRadians) * 6076)
+  const distanceToTDZAtCeiling = ceiling / (Math.tan(angleRadians) * FEET_PER_NM)
   // Distance from threshold to reach ceiling
-  const distanceFromThresholdAtCeiling = distanceToTDZAtCeiling + 1000 / 6076
+  const distanceFromThresholdAtCeiling = distanceToTDZAtCeiling + 1000 / FEET_PER_NM
 
   // Calculate position as percentage of total animation
-  const endDistanceNm = 10 / (Math.tan((3 * Math.PI) / 180) * 6076) + 1000 / 6076
+  const endDistanceNm = 10 / (Math.tan(angleRadians) * FEET_PER_NM) + 1000 / FEET_PER_NM
   const totalDistance = animationStore.startingDistanceNm - endDistanceNm
 
   // Distance traveled from start to ceiling
@@ -213,18 +216,16 @@ const cloudBreakoutPosition = computed(() => {
 
 // Helper function to calculate slider position for a given distance from threshold
 function calculateSliderPosition(distanceFromThresholdFt: number): number {
-  // Convert distance from threshold to distance from touchdown zone
-  // Touchdown zone is 1000 ft past threshold
-  // Positive distances are before threshold, negative are after
-  const distanceFromTDZFt = distanceFromThresholdFt - 1000
-  const distanceFromTDZNm = distanceFromTDZFt / 6076
+  // Convert distance from threshold to nautical miles
+  const distanceFromThresholdNm = distanceFromThresholdFt / FEET_PER_NM
 
   // Animation ends at 10 ft above runway, which is approximately at touchdown zone
-  const endDistanceNm = 10 / (Math.tan((3 * Math.PI) / 180) * 6076)
+  const angleRadians = (GLIDESLOPE_ANGLE * Math.PI) / 180
+  const endDistanceNm = 10 / (Math.tan(angleRadians) * FEET_PER_NM) + 1000 / FEET_PER_NM
   const totalDistance = animationStore.startingDistanceNm - endDistanceNm
 
-  // Distance traveled from start
-  const distanceTraveled = animationStore.startingDistanceNm - distanceFromTDZNm
+  // Distance traveled from start to reach this threshold distance
+  const distanceTraveled = animationStore.startingDistanceNm - distanceFromThresholdNm
   const percentage = (distanceTraveled / totalDistance) * 100
 
   return Math.max(0, Math.min(100, percentage))
@@ -314,11 +315,13 @@ const visibilityTickMarks = computed(() => {
     approachStore.selectedMinimumId === 'cat-iiia' ||
     approachStore.selectedMinimumId === 'cat-iiib'
   ) {
-    // Calculate distance for 100 ft altitude on glidepath
-    const angleRadians = (3 * Math.PI) / 180 // 3 degree glideslope
-    const distanceFor100ft = 100 / (Math.tan(angleRadians) * 6076.12) // distance in nm
-    const distanceFromThreshold = distanceFor100ft + 1000 / 6076.12 // add touchdown zone distance
-    const alertHeightPosition = calculateSliderPosition(distanceFromThreshold * 6076.12)
+    // Calculate distance for 100 ft altitude on glidepath using the same formula as animation store
+    const angleRadians = (GLIDESLOPE_ANGLE * Math.PI) / 180
+    // Distance from touchdown zone to reach 100 ft altitude (in nautical miles)
+    const distanceFromTDZNm = 100 / (Math.tan(angleRadians) * FEET_PER_NM)
+    // Convert to distance from threshold (add touchdown zone distance)
+    const distanceFromThresholdNm = distanceFromTDZNm + 1000 / FEET_PER_NM
+    const alertHeightPosition = calculateSliderPosition(distanceFromThresholdNm * FEET_PER_NM)
 
     if (alertHeightPosition >= 0 && alertHeightPosition <= 100) {
       marks.push({
@@ -702,8 +705,8 @@ onUnmounted(() => {
 }
 
 .tick-alert-height .tick-line {
-  background: rgb(255 200 100 / 80%);
   height: 16px;
+  background: rgb(255 200 100 / 80%);
 }
 
 .tick-red-bars .tick-line {
@@ -795,8 +798,8 @@ onUnmounted(() => {
 }
 
 .checkbox-field label.disabled-label {
-  opacity: 0.6;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Light mode (default) */
