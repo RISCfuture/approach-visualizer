@@ -40,25 +40,10 @@ test('Yellow indicators below ceiling', async ({ page }) => {
   const canvas = page.locator('canvas.babylon-canvas')
   await expect(canvas).toBeVisible({ timeout: 5000 })
   
-  // Wait for auto-play to start or manually trigger it
-  // This approach works for all browsers without conditionals
-  const playButton = page.getByRole('button', { name: /play/i })
-  const pauseButton = page.getByRole('button', { name: /pause/i })
+  // Wait for auto-play to start
+  await expect(page.getByRole('button', { name: /pause/i })).toBeVisible({ timeout: 5000 })
   
-  // Wait for either play or pause button to be visible
-  await expect(playButton.or(pauseButton)).toBeVisible({ timeout: 5000 })
-  
-  // Try to ensure animation is running by clicking play if it's visible
-  // This handles Firefox's animation start issues gracefully
-  await playButton.click({ timeout: 1000 }).catch(() => {
-    // Button not visible or clickable - animation likely already running
-  })
-  
-  // Verify animation is now running
-  await expect(pauseButton).toBeVisible({ timeout: 5000 })
-  
-  // Wait for altitude to drop below ceiling using a more appropriate expectation
-  // Allow some flexibility since animation speed can vary in CI
+  // Wait for altitude to drop below ceiling
   await expect(async () => {
     const altText = await page.locator('.status-value').first().textContent()
     const altitude = parseInt(altText?.replace(/[^\d]/g, '') || '999')

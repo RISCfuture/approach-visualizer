@@ -51,12 +51,13 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
       },
     },
-    {
+    // Skip Firefox in CI due to WebGL compatibility issues
+    ...(process.env.CI ? [] : [{
       name: 'firefox',
       use: {
         ...devices['Desktop Firefox'],
       },
-    },
+    }]),
     {
       name: 'webkit',
       use: {

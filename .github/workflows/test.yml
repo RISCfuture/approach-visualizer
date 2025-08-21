@@ -30,7 +30,7 @@ jobs:
         run: yarn test:unit
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: yarn playwright install --with-deps chromium webkit
 
       - name: Build application
         run: yarn build
