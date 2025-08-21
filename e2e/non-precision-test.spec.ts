@@ -35,36 +35,27 @@ test('Cloud breakout tick mark', async ({ page }) => {
   expect(leftPercent).toBeLessThan(90)
 })
 
-test('Yellow indicators below ceiling', async ({ page, browserName }) => {
-  // Note: This test may have issues with Firefox in CI environments
-  // Skip Firefox in CI for now as animation doesn't start reliably
-  if (browserName === 'firefox' && process.env.CI) {
-    console.log('[E2E] Skipping Firefox test in CI due to animation issues')
-    return
-  }
-  
+test('Yellow indicators below ceiling', async ({ page }) => {
   await page.goto('/?testMode=true')
   const canvas = page.locator('canvas.babylon-canvas')
   await expect(canvas).toBeVisible({ timeout: 5000 })
   
-  // Wait for auto-play to start
-  await expect(page.getByRole('button', { name: /pause/i })).toBeVisible({ timeout: 5000 })
+  // Wait for auto-play to start or manually trigger it
+  // This approach works for all browsers without conditionals
+  const playButton = page.getByRole('button', { name: /play/i })
+  const pauseButton = page.getByRole('button', { name: /pause/i })
   
-  // Verify animation is running
-  await expect(page.getByRole('button', { name: /pause/i })).toBeVisible({ timeout: 5000 })
+  // Wait for either play or pause button to be visible
+  await expect(playButton.or(pauseButton)).toBeVisible({ timeout: 5000 })
   
-  // For Firefox, try manually clicking play if animation didn't start
-  if (browserName === 'firefox') {
-    try {
-      const playButton = page.getByRole('button', { name: /play/i })
-      if (await playButton.isVisible({ timeout: 1000 })) {
-        await playButton.click()
-        await expect(page.getByRole('button', { name: /pause/i })).toBeVisible({ timeout: 3000 })
-      }
-    } catch {
-      // Animation already running
-    }
-  }
+  // Try to ensure animation is running by clicking play if it's visible
+  // This handles Firefox's animation start issues gracefully
+  await playButton.click({ timeout: 1000 }).catch(() => {
+    // Button not visible or clickable - animation likely already running
+  })
+  
+  // Verify animation is now running
+  await expect(pauseButton).toBeVisible({ timeout: 5000 })
   
   // Wait for altitude to drop below ceiling using a more appropriate expectation
   // Allow some flexibility since animation speed can vary in CI
