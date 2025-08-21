@@ -20,6 +20,7 @@ app.use(PrimeVue, {
   theme: {
     preset: Aura,
   },
+  unstyled: false,
 })
 
 app.directive('tooltip', Tooltip)
