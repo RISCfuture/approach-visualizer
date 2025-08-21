@@ -40,6 +40,13 @@ export class SceneManager {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
+
+    // Check for WebGL support
+    if (!BABYLON.Engine.isSupported()) {
+      this.handleWebGLNotSupported()
+      throw new Error('WebGL is not supported')
+    }
+
     this.engine = new BABYLON.Engine(canvas, true)
     this.scene = new BABYLON.Scene(this.engine)
     this.approachStore = useApproachStore()
@@ -766,6 +773,43 @@ export class SceneManager {
 
     if (!this.animationStore.isPlaying) {
       this.resetCameraPosition()
+    }
+  }
+
+  private handleWebGLNotSupported(): void {
+    // Clear the canvas
+    const ctx = this.canvas.getContext('2d')
+    if (ctx) {
+      ctx.fillStyle = '#f0f0f0'
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+
+      // Draw error message
+      ctx.fillStyle = '#333'
+      ctx.font = 'bold 24px system-ui, -apple-system, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      const centerX = this.canvas.width / 2
+      const centerY = this.canvas.height / 2
+
+      ctx.fillText('WebGL is not supported', centerX, centerY - 40)
+
+      ctx.font = '16px system-ui, -apple-system, sans-serif'
+      ctx.fillText('This application requires WebGL to display 3D graphics.', centerX, centerY)
+      ctx.fillText('Please try:', centerX, centerY + 30)
+
+      ctx.font = '14px system-ui, -apple-system, sans-serif'
+      ctx.textAlign = 'left'
+      const suggestions = [
+        '• Using a modern browser (Chrome, Firefox, Safari, Edge)',
+        '• Enabling hardware acceleration in your browser settings',
+        '• Updating your graphics drivers',
+        '• Checking if WebGL is blocked by security software',
+      ]
+
+      suggestions.forEach((text, index) => {
+        ctx.fillText(text, centerX - 200, centerY + 70 + index * 25)
+      })
     }
   }
 
