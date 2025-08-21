@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs'
+import { SafeMeshBuilder } from '@/scene/utils/SafeMeshBuilder'
 import {
   feetToMeters,
   RUNWAY_WIDTH_FT,
@@ -24,6 +25,10 @@ export class PAPISystem {
   }
 
   private createMaterials(): void {
+    // Dispose of existing materials if any
+    SafeMeshBuilder.disposeMaterial(this.papiRedMat)
+    SafeMeshBuilder.disposeMaterial(this.papiWhiteMat)
+
     this.papiRedMat = new BABYLON.StandardMaterial('papiRed', this.scene)
     this.papiRedMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
     this.papiRedMat.diffuseColor = new BABYLON.Color3(1, 0, 0)
@@ -34,6 +39,16 @@ export class PAPISystem {
   }
 
   create(): void {
+    // Check if scene is valid before creating meshes
+    if (!SafeMeshBuilder.isSceneReady(this.scene)) {
+      console.warn('Scene is not available or disposed, skipping PAPI lights creation')
+      return
+    }
+
+    // Dispose of existing PAPI lights if any
+    SafeMeshBuilder.disposeMeshes(this.papiLights)
+    this.papiLights = []
+
     const tdzMeters = feetToMeters(TOUCHDOWN_ZONE_DISTANCE_FT)
     const runwayWidthM = feetToMeters(RUNWAY_WIDTH_FT)
 
@@ -44,24 +59,27 @@ export class PAPISystem {
 
     // PAPI lights should be perpendicular to runway (varying X position)
     for (let i = 0; i < 4; i++) {
-      const papi = BABYLON.MeshBuilder.CreateSphere(
+      const papi = SafeMeshBuilder.createSphere(
         `papi_${i}`,
         { diameter: 1.5, segments: 8 },
         this.scene,
       )
-      papi.position.set(
-        papiStartX - i * papiSpacing, // Vary X position
-        papiY,
-        papiZ, // Keep Z constant at touchdown zone
-      )
-      // Initially set to 2 red, 2 white (on glidepath)
-      papi.material = i < 2 ? this.papiRedMat : this.papiWhiteMat
 
-      if (this.glowLayer) {
-        this.glowLayer.addIncludedOnlyMesh(papi)
+      if (papi) {
+        papi.position.set(
+          papiStartX - i * papiSpacing, // Vary X position
+          papiY,
+          papiZ, // Keep Z constant at touchdown zone
+        )
+        // Initially set to 2 red, 2 white (on glidepath)
+        papi.material = i < 2 ? this.papiRedMat : this.papiWhiteMat
+
+        if (this.glowLayer) {
+          this.glowLayer.addIncludedOnlyMesh(papi)
+        }
+
+        this.papiLights.push(papi)
       }
-
-      this.papiLights.push(papi)
     }
   }
 
@@ -111,10 +129,12 @@ export class PAPISystem {
   }
 
   dispose(): void {
-    this.papiLights.forEach((light) => light.dispose())
+    SafeMeshBuilder.disposeMeshes(this.papiLights)
     this.papiLights = []
 
-    this.papiRedMat?.dispose()
-    this.papiWhiteMat?.dispose()
+    SafeMeshBuilder.disposeMaterial(this.papiRedMat)
+    SafeMeshBuilder.disposeMaterial(this.papiWhiteMat)
+    this.papiRedMat = null
+    this.papiWhiteMat = null
   }
 }
