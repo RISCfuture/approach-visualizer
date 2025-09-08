@@ -47,8 +47,80 @@ export class SceneManager {
       throw new Error('WebGL is not supported')
     }
 
-    this.engine = new BABYLON.Engine(canvas, true)
+    // Try to create engine with WebGL2 context first, fallback to WebGL1 if needed
+    // This helps avoid VAO (Vertex Array Object) errors on browsers with limited WebGL2 support
+    try {
+      // First try WebGL2 with specific options to avoid VAO issues
+      this.engine = new BABYLON.Engine(canvas, true, {
+        disableWebGL2Support: false,
+        useHighPrecisionFloats: false,
+        preserveDrawingBuffer: false,
+        premultipliedAlpha: true,
+        audioEngine: false,
+        stencil: true,
+        antialias: true,
+        depth: true,
+        failIfMajorPerformanceCaveat: false,
+        doNotHandleContextLost: false,
+        doNotHandleTouchAction: false,
+        useHighPrecisionMatrix: false,
+      })
+    } catch (error) {
+      console.warn('Failed to create WebGL2 context, falling back to WebGL1:', error)
+      try {
+        // Fallback to WebGL1 with compatibility settings
+        this.engine = new BABYLON.Engine(canvas, true, {
+          disableWebGL2Support: true,
+          useHighPrecisionFloats: false,
+          preserveDrawingBuffer: false,
+          premultipliedAlpha: true,
+          audioEngine: false,
+          stencil: false,
+          antialias: true,
+          depth: true,
+          failIfMajorPerformanceCaveat: false,
+          doNotHandleContextLost: false,
+          doNotHandleTouchAction: false,
+          useHighPrecisionMatrix: false,
+        })
+      } catch (fallbackError) {
+        console.error('Failed to create WebGL context:', fallbackError)
+        this.handleWebGLNotSupported()
+        throw new Error('Unable to initialize WebGL context')
+      }
+    }
+
+    // Verify engine is properly initialized
+    if (!this.engine || !this.engine.getRenderingCanvas()) {
+      this.handleWebGLNotSupported()
+      throw new Error('WebGL engine initialization failed')
+    }
+
+    // Add error handling for WebGL context lost
+    canvas.addEventListener('webglcontextlost', (event) => {
+      event.preventDefault()
+      console.error('WebGL context lost')
+      this.handleWebGLContextLost()
+    })
+
+    canvas.addEventListener('webglcontextrestored', () => {
+      console.log('WebGL context restored')
+      this.handleWebGLContextRestored()
+    })
+
     this.scene = new BABYLON.Scene(this.engine)
+
+    // Disable features that might cause VAO errors on limited WebGL implementations
+    if (!this.engine.getCaps().vertexArrayObject) {
+      console.warn('VAO not supported, using compatibility mode')
+      // Disable geometry buffer renderer which uses VAO
+      // @ts-expect-error - Property may not exist in all Babylon versions
+      if ('disableGeometryBufferRenderer' in this.scene) {
+        // @ts-expect-error - Property may not exist in all Babylon versions
+        this.scene.disableGeometryBufferRenderer = true
+      }
+    }
+
     this.approachStore = useApproachStore()
     this.animationStore = useAnimationStore()
 
@@ -810,6 +882,50 @@ export class SceneManager {
       suggestions.forEach((text, index) => {
         ctx.fillText(text, centerX - 200, centerY + 70 + index * 25)
       })
+    }
+  }
+
+  private handleWebGLContextLost(): void {
+    // Stop the render loop when context is lost
+    if (this.engine) {
+      this.engine.stopRenderLoop()
+    }
+
+    // Pause animations
+    if (this.animationStore && this.animationStore.isPlaying) {
+      this.animationStore.isPaused = true
+    }
+
+    // Show context lost message
+    const ctx = this.canvas.getContext('2d')
+    if (ctx) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+
+      ctx.fillStyle = '#fff'
+      ctx.font = 'bold 20px system-ui, -apple-system, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      const centerX = this.canvas.width / 2
+      const centerY = this.canvas.height / 2
+
+      ctx.fillText('WebGL context lost. Attempting to restore...', centerX, centerY)
+    }
+  }
+
+  private handleWebGLContextRestored(): void {
+    // Restart the render loop when context is restored
+    if (this.engine) {
+      this.engine.runRenderLoop(() => {
+        this.update()
+        this.scene.render()
+      })
+    }
+
+    // Resume animations if they were playing
+    if (this.animationStore && this.animationStore.isPlaying) {
+      this.animationStore.isPaused = false
     }
   }
 
