@@ -75,7 +75,7 @@
     "stylelint-order": "^7.0.0",
     "terser": "^5.43.1",
     "typescript": "^5.9.2",
-    "vite": "^7.1.2",
+    "vite": "^7.1.5",
     "vite-plugin-vue-devtools": "^8.0.0",
     "vitest": "^3.2.4",
     "vue-eslint-parser": "^10.2.0",
