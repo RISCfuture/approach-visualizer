@@ -120,7 +120,10 @@ export class PAPISystem {
 
     // Update light colors
     for (let i = 0; i < 4; i++) {
-      this.papiLights[i].material = i < redCount ? this.papiRedMat : this.papiWhiteMat
+      const light = this.papiLights[i]
+      if (light) {
+        light.material = i < redCount ? this.papiRedMat : this.papiWhiteMat
+      }
     }
   }
 

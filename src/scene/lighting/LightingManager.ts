@@ -151,8 +151,9 @@ export class LightingManager {
         flasher.isVisible = false
       })
 
-      if (currentIndex >= 0 && currentIndex < sequencedFlashers.length) {
-        sequencedFlashers[currentIndex].isVisible = true
+      const flasher = sequencedFlashers[currentIndex]
+      if (flasher && currentIndex >= 0 && currentIndex < sequencedFlashers.length) {
+        flasher.isVisible = true
       }
 
       currentIndex--

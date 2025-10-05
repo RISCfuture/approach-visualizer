@@ -92,10 +92,10 @@ describe('RunwayViewer', () => {
     // Check that suggestions are displayed
     const suggestions = wrapper.findAll('.suggestions li')
     expect(suggestions.length).toBe(4)
-    expect(suggestions[0].text()).toContain('Using a modern browser')
-    expect(suggestions[1].text()).toContain('Enabling hardware acceleration')
-    expect(suggestions[2].text()).toContain('Updating your graphics drivers')
-    expect(suggestions[3].text()).toContain('WebGL is blocked')
+    expect(suggestions[0]?.text()).toContain('Using a modern browser')
+    expect(suggestions[1]?.text()).toContain('Enabling hardware acceleration')
+    expect(suggestions[2]?.text()).toContain('Updating your graphics drivers')
+    expect(suggestions[3]?.text()).toContain('WebGL is blocked')
   })
 
   it('properly disposes SceneManager on unmount', async () => {
@@ -158,6 +158,7 @@ describe('RunwayViewer', () => {
     await new Promise((resolve) => setTimeout(resolve, 0))
 
     // Check that error was logged
+    expect(consoleSpy).toHaveBeenCalledTimes(1)
     expect(consoleSpy).toHaveBeenCalledWith('Failed to initialize 3D scene:', expect.any(Error))
 
     consoleSpy.mockRestore()

@@ -241,8 +241,10 @@ export class LightingManager {
       if (currentIndex < this.sequencedFlashers.length / 2) {
         const leftIndex = currentIndex
         const rightIndex = this.sequencedFlashers.length / 2 + currentIndex
-        this.sequencedFlashers[leftIndex].setEnabled(true)
-        this.sequencedFlashers[rightIndex].setEnabled(true)
+        const leftFlasher = this.sequencedFlashers[leftIndex]
+        const rightFlasher = this.sequencedFlashers[rightIndex]
+        if (leftFlasher) leftFlasher.setEnabled(true)
+        if (rightFlasher) rightFlasher.setEnabled(true)
       }
 
       currentIndex = (currentIndex + 1) % (this.sequencedFlashers.length / 2 + 1)
