@@ -159,7 +159,10 @@ describe('RunwayViewer', () => {
 
     // Check that error was logged
     expect(consoleSpy).toHaveBeenCalledTimes(1)
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to initialize 3D scene:', expect.any(Error))
+    expect(consoleSpy).toHaveBeenCalledExactlyOnceWith(
+      'Failed to initialize 3D scene:',
+      expect.any(Error),
+    )
 
     consoleSpy.mockRestore()
   })
