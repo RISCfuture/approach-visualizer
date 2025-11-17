@@ -80,5 +80,5 @@ jobs:
           SENTRY_PROJECT: approach-visualizer
         with:
           environment: production
-          version: ${{ github.sha }}
+          release: ${{ github.sha }}
           sourcemaps: "./dist"

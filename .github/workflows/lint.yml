@@ -33,4 +33,4 @@ jobs:
         run: yarn lint:oxlint
 
       - name: Run Stylelint
-        run: yarn stylelint
+        run: yarn lint:stylelint
