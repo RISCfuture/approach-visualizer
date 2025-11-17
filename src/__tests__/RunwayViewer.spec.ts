@@ -45,7 +45,9 @@ describe('RunwayViewer', () => {
 
   it('renders properly when WebGL is supported', async () => {
     // Mock successful SceneManager creation
-    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(() => mockSceneManager)
+    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
+      return mockSceneManager
+    })
 
     const wrapper = mount(RunwayViewer, {
       global: {
@@ -69,7 +71,7 @@ describe('RunwayViewer', () => {
 
   it('displays error message when WebGL is not supported', async () => {
     // Mock SceneManager constructor to throw an error
-    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(() => {
+    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       throw new Error('WebGL is not supported')
     })
 
@@ -100,7 +102,9 @@ describe('RunwayViewer', () => {
 
   it('properly disposes SceneManager on unmount', async () => {
     // Mock successful SceneManager creation
-    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(() => mockSceneManager)
+    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
+      return mockSceneManager
+    })
 
     const wrapper = mount(RunwayViewer, {
       global: {
@@ -120,7 +124,7 @@ describe('RunwayViewer', () => {
 
   it('does not call dispose when SceneManager creation fails', async () => {
     // Mock SceneManager constructor to throw an error
-    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(() => {
+    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       throw new Error('WebGL is not supported')
     })
 
@@ -144,7 +148,7 @@ describe('RunwayViewer', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Mock SceneManager constructor to throw an error
-    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(() => {
+    ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       throw new Error('WebGL is not supported')
     })
 
