@@ -26,7 +26,7 @@ Sentry.init({
         trackComponents: true,
       },
     }),
-    // Sentry.browserTracingIntegration({ router }),
+    Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
   ],
   tracesSampleRate: 1.0,
