@@ -9,11 +9,7 @@ import { feetToMeters, RUNWAY_WIDTH_FT } from '@/types/approach'
 export class ODALSSystem extends ApproachLightingSystem {
   private showPAPI: boolean
 
-  constructor(
-    scene: BABYLON.Scene,
-    glowLayer: BABYLON.GlowLayer | null,
-    showPAPI: boolean = false,
-  ) {
+  constructor(scene: BABYLON.Scene, glowLayer: BABYLON.GlowLayer | null, showPAPI = false) {
     super(scene, glowLayer)
     this.showPAPI = showPAPI
   }
@@ -25,7 +21,7 @@ export class ODALSSystem extends ApproachLightingSystem {
       const odal = this.createLight(
         `odals_center_${ft}`,
         new BABYLON.Vector3(0, 3, z),
-        this.strobeMat!,
+        this.strobeMat,
         2, // Larger omnidirectional flasher
       )
       this.sequencedFlashers.push(odal)
@@ -45,7 +41,7 @@ export class ODALSSystem extends ApproachLightingSystem {
           3,
           0, // At threshold
         ),
-        this.strobeMat!,
+        this.strobeMat,
         2, // Omnidirectional flasher
       )
       this.sequencedFlashers.push(odal)

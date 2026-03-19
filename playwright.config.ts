@@ -34,7 +34,9 @@ export default defineConfig({
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
+    baseURL: process.env.CI
+      ? 'http://localhost:4173/approach-visualizer'
+      : 'http://localhost:5173/approach-visualizer',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -52,12 +54,16 @@ export default defineConfig({
       },
     },
     // Skip Firefox in CI due to WebGL compatibility issues
-    ...(process.env.CI ? [] : [{
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-      },
-    }]),
+    ...(process.env.CI
+      ? []
+      : [
+          {
+            name: 'firefox',
+            use: {
+              ...devices['Desktop Firefox'],
+            },
+          },
+        ]),
     {
       name: 'webkit',
       use: {

@@ -13,9 +13,10 @@ import './styles/global.css'
 
 import App from './App.vue'
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 const app = createApp(App)
 
-const sentryDSN = import.meta.env.VITE_SENTRY_DSN
+const sentryDSN = import.meta.env.VITE_SENTRY_DSN as string | undefined
 Sentry.init({
   app,
   dsn: sentryDSN,

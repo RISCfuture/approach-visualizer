@@ -6,8 +6,8 @@ export class WeatherEffects {
   private camera: BABYLON.Camera
   private fogPostProcess: BABYLON.PostProcess | null = null
   private cloudParticles: BABYLON.ParticleSystem | null = null
-  private cloudTransitionTime: number = 0
-  private lastAltitudeInClouds: boolean = false
+  private cloudTransitionTime = 0
+  private lastAltitudeInClouds = false
 
   constructor(scene: BABYLON.Scene, camera: BABYLON.Camera) {
     this.scene = scene
@@ -159,7 +159,7 @@ export class WeatherEffects {
     currentAltitude: number,
     effectiveCeiling: number,
     deltaTime: number,
-    isDarkMode: boolean = false,
+    isDarkMode = false,
   ): void {
     if (!this.fogPostProcess) return
 

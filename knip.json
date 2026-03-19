@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "project": ["src/**/*.{ts,vue}"],
+  "ignore": [
+    "src/__tests__/**",
+    "src/scene/runway/RunwayManager.ts",
+    "src/scene/utils.ts",
+    "src/scene/weather/WeatherEffects.ts"
+  ],
+  "ignoreDependencies": ["@vue/test-utils"],
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    "exports": "warn",
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "unlisted": "off",
+    "unresolved": "off"
+  }
+}

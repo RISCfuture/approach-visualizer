@@ -145,6 +145,7 @@ describe('RunwayViewer', () => {
   })
 
   it('logs error to console when WebGL initialization fails', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Mock SceneManager constructor to throw an error

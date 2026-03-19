@@ -1,7 +1,7 @@
 import * as BABYLON from 'babylonjs'
 import type { LightingType } from '@/types/approach'
 import { ApproachLightingSystem } from './ApproachLightingSystem'
-import { ApproachLightingFactory } from './ApproachLightingFactory'
+import { createApproachLighting } from './ApproachLightingFactory'
 import { PAPISystem } from './PAPISystem'
 import { REILSystem } from './REILSystem'
 import { RCLSSystem } from './RCLSSystem'
@@ -27,12 +27,16 @@ export class LightingManager {
   private rabbitInterval: number | null = null
 
   // Configuration
-  private isDarkMode: boolean = false
+  private isDarkMode = false
   private currentLightingType: LightingType = 'None'
 
   constructor(scene: BABYLON.Scene) {
     this.scene = scene
     this.checkDarkMode()
+  }
+
+  getGlowLayer(): BABYLON.GlowLayer | null {
+    return this.glowLayer
   }
 
   private checkDarkMode(): void {
@@ -67,7 +71,7 @@ export class LightingManager {
 
     // Create approach lighting system
     if (config.lightingType !== 'None') {
-      this.approachLightingSystem = ApproachLightingFactory.create(
+      this.approachLightingSystem = createApproachLighting(
         config.lightingType,
         this.scene,
         this.glowLayer,
@@ -151,9 +155,8 @@ export class LightingManager {
         flasher.isVisible = false
       })
 
-      const flasher = sequencedFlashers[currentIndex]
-      if (flasher && currentIndex >= 0 && currentIndex < sequencedFlashers.length) {
-        flasher.isVisible = true
+      if (currentIndex >= 0 && currentIndex < sequencedFlashers.length) {
+        sequencedFlashers[currentIndex].isVisible = true
       }
 
       currentIndex--

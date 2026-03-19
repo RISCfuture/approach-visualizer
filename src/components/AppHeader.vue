@@ -42,7 +42,9 @@ const selectedMinimum = computed({
 
 const customCeiling = computed({
   get: () => approachStore.effectiveCeiling,
-  set: (value) => approachStore.setCustomCeiling(value),
+  set: (value) => {
+    approachStore.setCustomCeiling(value)
+  },
 })
 
 const customVisibility = computed({
@@ -51,35 +53,39 @@ const customVisibility = computed({
     const currentUnit = approachStore.visibilityUnit
     // Find matching option
     return (
-      VISIBILITY_OPTIONS.find((opt) => opt.value === currentValue && opt.unit === currentUnit) ||
+      VISIBILITY_OPTIONS.find((opt) => opt.value === currentValue && opt.unit === currentUnit) ??
       VISIBILITY_OPTIONS[6]
     ) // Default to 2400 RVR
   },
   set: (option) => {
-    if (option) {
-      // Switch unit if needed
-      if (option.unit !== approachStore.visibilityUnit) {
-        approachStore.setVisibilityUnit(option.unit as 'RVR' | 'SM')
-      }
-      approachStore.setCustomVisibility(option.value)
+    // Switch unit if needed
+    if (option.unit !== approachStore.visibilityUnit) {
+      approachStore.setVisibilityUnit(option.unit as 'RVR' | 'SM')
     }
+    approachStore.setCustomVisibility(option.value)
   },
 })
 
 const lightingType = computed({
   get: () => approachStore.lightingType,
-  set: (value) => approachStore.setLightingType(value),
+  set: (value) => {
+    approachStore.setLightingType(value)
+  },
 })
 
 const approachSpeed = computed({
   get: () => approachStore.approachSpeed,
-  set: (value) => approachStore.setApproachSpeed(value),
+  set: (value) => {
+    approachStore.setApproachSpeed(value)
+  },
 })
 
 // Computed properties for runway lighting components
 const showREIL = computed({
   get: () => approachStore.showREIL,
-  set: (value) => approachStore.setShowREIL(value),
+  set: (value) => {
+    approachStore.setShowREIL(value)
+  },
 })
 
 // REIL checkbox should be disabled for systems with built-in runway identification
@@ -89,38 +95,52 @@ const reilDisabled = computed(() => {
 
 const showRCLS = computed({
   get: () => approachStore.showRCLS,
-  set: (value) => approachStore.setShowRCLS(value),
+  set: (value) => {
+    approachStore.setShowRCLS(value)
+  },
 })
 
 const showEdgeLights = computed({
   get: () => approachStore.showEdgeLights,
-  set: (value) => approachStore.setShowEdgeLights(value),
+  set: (value) => {
+    approachStore.setShowEdgeLights(value)
+  },
 })
 
 const showPAPI = computed({
   get: () => approachStore.showPAPI,
-  set: (value) => approachStore.setShowPAPI(value),
+  set: (value) => {
+    approachStore.setShowPAPI(value)
+  },
 })
 
 // Computed properties for runway markings
 const showThresholdMarkings = computed({
   get: () => approachStore.showThresholdMarkings,
-  set: (value) => approachStore.setShowThresholdMarkings(value),
+  set: (value) => {
+    approachStore.setShowThresholdMarkings(value)
+  },
 })
 
 const showTouchdownZone = computed({
   get: () => approachStore.showTouchdownZone,
-  set: (value) => approachStore.setShowTouchdownZone(value),
+  set: (value) => {
+    approachStore.setShowTouchdownZone(value)
+  },
 })
 
 const showSideStripes = computed({
   get: () => approachStore.showSideStripes,
-  set: (value) => approachStore.setShowSideStripes(value),
+  set: (value) => {
+    approachStore.setShowSideStripes(value)
+  },
 })
 
 const showAimPoint = computed({
   get: () => approachStore.showAimPoint,
-  set: (value) => approachStore.setShowAimPoint(value),
+  set: (value) => {
+    approachStore.setShowAimPoint(value)
+  },
 })
 
 const playButtonLabel = computed(() => {
@@ -236,15 +256,13 @@ const visibilityTickMarks = computed(() => {
   const marks = []
 
   // Get visibility in feet
-  let visibilityFt: number
-  if (approachStore.visibilityUnit === 'RVR') {
-    visibilityFt = approachStore.effectiveVisibility
-  } else {
-    // Convert SM to feet (1 SM = 5280 ft)
-    visibilityFt = approachStore.effectiveVisibility * 5280
-  }
+  const visibilityFt =
+    approachStore.visibilityUnit === 'RVR'
+      ? approachStore.effectiveVisibility
+      : // Convert SM to feet (1 SM = 5280 ft)
+        approachStore.effectiveVisibility * 5280
 
-  const lightingType = approachStore.lightingType
+  const currentLightingType = approachStore.lightingType
   const cloudBreakout = cloudBreakoutPosition.value
 
   // Cloud breakout tick mark
@@ -269,7 +287,7 @@ const visibilityTickMarks = computed(() => {
   }
 
   // Decision bar (1000 ft before threshold, 2000 ft before TDZ)
-  if (['ALSF-II', 'ALSF-I', 'MALSR', 'SSALR'].includes(lightingType)) {
+  if (['ALSF-II', 'ALSF-I', 'MALSR', 'SSALR'].includes(currentLightingType)) {
     const decisionBarVisibilityDistance = visibilityFt + 3000
     const decisionBarPosition = calculateSliderPosition(decisionBarVisibilityDistance)
 
@@ -283,7 +301,7 @@ const visibilityTickMarks = computed(() => {
   }
 
   // Sequenced flashers (2400 ft before threshold, 3400 ft before TDZ)
-  if (['ALSF-II', 'ALSF-I', 'MALSR', 'SSALR'].includes(lightingType)) {
+  if (['ALSF-II', 'ALSF-I', 'MALSR', 'SSALR'].includes(currentLightingType)) {
     const flashersVisibilityDistance = visibilityFt + 4400
     const flashersPosition = calculateSliderPosition(flashersVisibilityDistance)
 

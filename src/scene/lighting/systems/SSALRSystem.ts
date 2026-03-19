@@ -33,7 +33,7 @@ export class SSALRSystem extends ApproachLightingSystem {
           const light = this.createLight(
             `ssalr_bar_${ft}_${i}`,
             new BABYLON.Vector3(x, 2, z),
-            this.whiteMat!,
+            this.whiteMat,
             0.6,
           )
           this.approachLights.push(light)
@@ -50,7 +50,7 @@ export class SSALRSystem extends ApproachLightingSystem {
       const light = this.createLight(
         `ssalr_1000_center_${i}`,
         new BABYLON.Vector3(x, 2, z),
-        this.whiteMat!,
+        this.whiteMat,
         0.6,
       )
       this.approachLights.push(light)
@@ -64,7 +64,7 @@ export class SSALRSystem extends ApproachLightingSystem {
         const light = this.createLight(
           `ssalr_1000_side_${side}_${i}`,
           new BABYLON.Vector3(x, 2, z),
-          this.whiteMat!,
+          this.whiteMat,
           0.6,
         )
         this.approachLights.push(light)
@@ -81,7 +81,7 @@ export class SSALRSystem extends ApproachLightingSystem {
       const light = this.createLight(
         `ssalr_threshold_${i}`,
         new BABYLON.Vector3(x, 1, 0),
-        this.greenMat!,
+        this.greenMat,
         0.8,
       )
       this.approachLights.push(light)

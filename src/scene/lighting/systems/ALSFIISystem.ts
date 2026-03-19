@@ -45,7 +45,7 @@ export class ALSFIISystem extends ApproachLightingSystem {
           const light = this.createLight(
             `alsf2_bar_${ft}_${i}`,
             new BABYLON.Vector3(x, 2, z),
-            this.whiteMat!,
+            this.whiteMat,
             0.6,
           )
           this.approachLights.push(light)
@@ -61,7 +61,7 @@ export class ALSFIISystem extends ApproachLightingSystem {
       const light = this.createLight(
         `alsf2_1000_center_${i}`,
         new BABYLON.Vector3(x, 2, z),
-        this.whiteMat!,
+        this.whiteMat,
         0.6,
       )
       this.approachLights.push(light)
@@ -74,7 +74,7 @@ export class ALSFIISystem extends ApproachLightingSystem {
         const light = this.createLight(
           `alsf2_1000_ext_${side}_${i}`,
           new BABYLON.Vector3(x, 2, z),
-          this.whiteMat!,
+          this.whiteMat,
           0.6,
         )
         this.approachLights.push(light)
@@ -91,7 +91,7 @@ export class ALSFIISystem extends ApproachLightingSystem {
       const light = this.createLight(
         `alsf2_500bar_left_${i}`,
         new BABYLON.Vector3(x, 2, fiveHundredZ),
-        this.whiteMat!,
+        this.whiteMat,
         0.6,
       )
       this.approachLights.push(light)
@@ -103,7 +103,7 @@ export class ALSFIISystem extends ApproachLightingSystem {
       const light = this.createLight(
         `alsf2_500bar_right_${i}`,
         new BABYLON.Vector3(x, 2, fiveHundredZ),
-        this.whiteMat!,
+        this.whiteMat,
         0.6,
       )
       this.approachLights.push(light)
@@ -122,7 +122,7 @@ export class ALSFIISystem extends ApproachLightingSystem {
           const light = this.createLight(
             `alsf2_sidebar_${ft}_${side}_${i}`,
             new BABYLON.Vector3(x, 2, z),
-            this.redMat!,
+            this.redMat,
             0.5,
           )
           this.approachLights.push(light)
@@ -147,7 +147,7 @@ export class ALSFIISystem extends ApproachLightingSystem {
               1,
               z,
             ),
-            this.whiteMat!,
+            this.whiteMat,
             0.6,
           )
           this.runwayLights.push(light) // These are runway lights, not approach lights
@@ -180,7 +180,9 @@ export class ALSFIISystem extends ApproachLightingSystem {
 
   dispose(): void {
     super.dispose()
-    this.runwayLights.forEach((light) => light.dispose())
+    this.runwayLights.forEach((light) => {
+      light.dispose()
+    })
     this.runwayLights = []
   }
 }

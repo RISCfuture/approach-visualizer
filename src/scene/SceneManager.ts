@@ -12,6 +12,7 @@ import {
 
 // Import the new modular systems
 import { LightingManager } from './lighting/LightingManager'
+import { updateSceneColors } from './utils'
 
 /**
  * Refactored SceneManager using the new modular architecture
@@ -31,12 +32,12 @@ export class SceneManager {
   // Weather effects (keeping inline for now as it's already partially modular)
   private fogPostProcess: BABYLON.PostProcess | null = null
   private cloudParticles: BABYLON.ParticleSystem | null = null
-  private cloudTransitionTime: number = 0
-  private lastAltitudeInClouds: boolean = false
+  private cloudTransitionTime = 0
+  private lastAltitudeInClouds = false
 
   // Animation state
-  private lastFrameTime: number = 0
-  private isDarkMode: boolean = false
+  private lastFrameTime = 0
+  private isDarkMode = false
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -86,12 +87,12 @@ export class SceneManager {
       } catch (fallbackError) {
         console.error('Failed to create WebGL context:', fallbackError)
         this.handleWebGLNotSupported()
-        throw new Error('Unable to initialize WebGL context')
+        throw new Error('Unable to initialize WebGL context', { cause: fallbackError })
       }
     }
 
     // Verify engine is properly initialized
-    if (!this.engine || !this.engine.getRenderingCanvas()) {
+    if (!this.engine.getRenderingCanvas()) {
       this.handleWebGLNotSupported()
       throw new Error('WebGL engine initialization failed')
     }
@@ -171,16 +172,12 @@ export class SceneManager {
 
   private setupScene(): void {
     // Clear existing lights
-    this.scene.lights.forEach((light) => light.dispose())
+    this.scene.lights.forEach((light) => {
+      light.dispose()
+    })
 
     // Set scene colors based on dark mode
-    if (this.isDarkMode) {
-      this.scene.clearColor = new BABYLON.Color4(0.05, 0.05, 0.12, 1)
-      this.scene.fogColor = new BABYLON.Color3(0.06, 0.06, 0.14)
-    } else {
-      this.scene.clearColor = new BABYLON.Color4(0.6, 0.75, 0.9, 1)
-      this.scene.fogColor = new BABYLON.Color3(0.7, 0.75, 0.8)
-    }
+    updateSceneColors(this.scene, this.isDarkMode)
 
     // Basic fog
     this.scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR
@@ -615,6 +612,9 @@ export class SceneManager {
   }
 
   private setupSimpleCloudEffect(): void {
+    // Cache glow layer reference outside the render loop to avoid per-frame method calls
+    const glowLayer = this.lightingManager.getGlowLayer()
+
     const updateCloudFog = () => {
       const altitude = this.animationStore.currentAltitude
       const ceiling = this.approachStore.effectiveCeiling
@@ -630,7 +630,6 @@ export class SceneManager {
       const transitionProgress = Math.min(1, timeSinceTransition / transitionDuration)
 
       // Update glow layer intensity based on altitude
-      const glowLayer = this.lightingManager['glowLayer']
       if (glowLayer) {
         const baseIntensity = this.isDarkMode ? 2.5 : 1.2
 
@@ -659,8 +658,7 @@ export class SceneManager {
         }
 
         if (
-          this.cloudParticles &&
-          !this.cloudParticles.isStarted() &&
+          this.cloudParticles?.isStarted() === false &&
           this.animationStore.isPlaying &&
           !this.animationStore.isPaused
         ) {
@@ -708,7 +706,7 @@ export class SceneManager {
 
         this.updateFogDistance()
 
-        if (this.cloudParticles && this.cloudParticles.isStarted()) {
+        if (this.cloudParticles?.isStarted()) {
           this.cloudParticles.stop()
         }
       }
@@ -718,12 +716,10 @@ export class SceneManager {
   }
 
   private updateFogDistance(): void {
-    let visibilityMeters: number
-    if (this.approachStore.visibilityUnit === 'RVR') {
-      visibilityMeters = this.approachStore.effectiveVisibility * 0.3048
-    } else {
-      visibilityMeters = statuteMilesToMeters(this.approachStore.effectiveVisibility)
-    }
+    const visibilityMeters =
+      this.approachStore.visibilityUnit === 'RVR'
+        ? this.approachStore.effectiveVisibility * 0.3048
+        : statuteMilesToMeters(this.approachStore.effectiveVisibility)
 
     if (this.approachStore.visibilityUnit === 'RVR') {
       this.scene.fogStart = visibilityMeters * 0.1
@@ -805,7 +801,7 @@ export class SceneManager {
     }
 
     if (this.animationStore.isPaused) {
-      if (this.cloudParticles && this.cloudParticles.isStarted()) {
+      if (this.cloudParticles?.isStarted()) {
         this.cloudParticles.stop()
       }
     }
@@ -824,7 +820,7 @@ export class SceneManager {
     const meshesToRemove: BABYLON.Mesh[] = []
 
     this.scene.meshes.forEach((mesh) => {
-      if (mesh.name.match(/^(threshold|zero|nine|centerline|edgeStripe|aimingPoint|tdz_)/)) {
+      if (/^(threshold|zero|nine|centerline|edgeStripe|aimingPoint|tdz_)/.exec(mesh.name)) {
         meshesToRemove.push(mesh as BABYLON.Mesh)
       }
     })
@@ -886,12 +882,10 @@ export class SceneManager {
 
   private handleWebGLContextLost(): void {
     // Stop the render loop when context is lost
-    if (this.engine) {
-      this.engine.stopRenderLoop()
-    }
+    this.engine.stopRenderLoop()
 
     // Pause animations
-    if (this.animationStore && this.animationStore.isPlaying) {
+    if (this.animationStore.isPlaying) {
       this.animationStore.isPaused = true
     }
 
@@ -915,15 +909,13 @@ export class SceneManager {
 
   private handleWebGLContextRestored(): void {
     // Restart the render loop when context is restored
-    if (this.engine) {
-      this.engine.runRenderLoop(() => {
-        this.update()
-        this.scene.render()
-      })
-    }
+    this.engine.runRenderLoop(() => {
+      this.update()
+      this.scene.render()
+    })
 
     // Resume animations if they were playing
-    if (this.animationStore && this.animationStore.isPlaying) {
+    if (this.animationStore.isPlaying) {
       this.animationStore.isPaused = false
     }
   }
@@ -940,7 +932,7 @@ export class SceneManager {
 
     // Update ground material
     const ground = this.scene.getMeshByName('ground')
-    if (ground && ground.material) {
+    if (ground?.material) {
       const mat = ground.material as BABYLON.StandardMaterial
       mat.diffuseColor = this.isDarkMode
         ? new BABYLON.Color3(0.03, 0.04, 0.03)
@@ -952,7 +944,7 @@ export class SceneManager {
 
     // Update runway material
     const runway = this.scene.getMeshByName('runway')
-    if (runway && runway.material) {
+    if (runway?.material) {
       const mat = runway.material as BABYLON.StandardMaterial
       mat.diffuseColor = this.isDarkMode
         ? new BABYLON.Color3(0.15, 0.15, 0.17)

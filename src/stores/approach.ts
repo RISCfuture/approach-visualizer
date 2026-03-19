@@ -23,11 +23,6 @@ export const useApproachStore = defineStore('approach', () => {
   const showSideStripes = ref<boolean>(true)
   const showAimPoint = ref<boolean>(true)
 
-  // Apply initial preset configuration
-  function initializePresets() {
-    applyLightingPreset(lightingType.value)
-  }
-
   const selectedMinimum = computed((): ApproachMinimum | undefined => {
     return APPROACH_MINIMA.find((m) => m.id === selectedMinimumId.value)
   })
@@ -87,12 +82,6 @@ export const useApproachStore = defineStore('approach', () => {
 
   function setVisibilityUnit(unit: 'RVR' | 'SM') {
     customVisibilityUnit.value = unit
-  }
-
-  function setLightingType(type: LightingType) {
-    lightingType.value = type
-    // Apply preset configuration based on lighting type
-    applyLightingPreset(type)
   }
 
   function applyLightingPreset(type: LightingType) {
@@ -156,7 +145,15 @@ export const useApproachStore = defineStore('approach', () => {
         showSideStripes.value = false
         showAimPoint.value = false
         break
+      default:
+        break
     }
+  }
+
+  function setLightingType(type: LightingType) {
+    lightingType.value = type
+    // Apply preset configuration based on lighting type
+    applyLightingPreset(type)
   }
 
   function setApproachSpeed(speed: number) {
@@ -198,7 +195,7 @@ export const useApproachStore = defineStore('approach', () => {
   }
 
   // Initialize with default presets
-  initializePresets()
+  applyLightingPreset(lightingType.value)
 
   return {
     selectedMinimumId,
