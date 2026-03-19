@@ -11,11 +11,11 @@ export class RunwayEdgeLighting {
   private edgeLights: BABYLON.Mesh[] = []
   private glowLayer: BABYLON.GlowLayer | null = null
 
-  // Materials
-  private whiteMat: BABYLON.StandardMaterial | null = null
-  private yellowMat: BABYLON.StandardMaterial | null = null
-  private greenMat: BABYLON.StandardMaterial | null = null
-  private redMat: BABYLON.StandardMaterial | null = null
+  // Materials - initialized in createMaterials() called from constructor
+  private whiteMat!: BABYLON.StandardMaterial
+  private yellowMat!: BABYLON.StandardMaterial
+  private greenMat!: BABYLON.StandardMaterial
+  private redMat!: BABYLON.StandardMaterial
 
   constructor(scene: BABYLON.Scene, glowLayer: BABYLON.GlowLayer | null) {
     this.scene = scene
@@ -89,7 +89,7 @@ export class RunwayEdgeLighting {
         light.position.x = side * (runwayWidthM / 2 + 3) // 3 meters outside runway edge
         light.position.z = z
         light.position.y = 1 // Height above ground
-        light.material = material!
+        light.material = material
 
         if (this.glowLayer) {
           this.glowLayer.addIncludedOnlyMesh(light)
@@ -109,7 +109,7 @@ export class RunwayEdgeLighting {
         this.scene,
       )
       thresholdLight.position.set(x, 1, 5) // 5 meters from threshold
-      thresholdLight.material = this.greenMat!
+      thresholdLight.material = this.greenMat
 
       if (this.glowLayer) {
         this.glowLayer.addIncludedOnlyMesh(thresholdLight)
@@ -128,7 +128,7 @@ export class RunwayEdgeLighting {
         this.scene,
       )
       endLight.position.set(x, 1, runwayLengthM - 5) // 5 meters from end
-      endLight.material = this.redMat!
+      endLight.material = this.redMat
 
       if (this.glowLayer) {
         this.glowLayer.addIncludedOnlyMesh(endLight)
@@ -143,12 +143,14 @@ export class RunwayEdgeLighting {
   }
 
   dispose(): void {
-    this.edgeLights.forEach((light) => light.dispose())
+    this.edgeLights.forEach((light) => {
+      light.dispose()
+    })
     this.edgeLights = []
 
-    this.whiteMat?.dispose()
-    this.yellowMat?.dispose()
-    this.greenMat?.dispose()
-    this.redMat?.dispose()
+    this.whiteMat.dispose()
+    this.yellowMat.dispose()
+    this.greenMat.dispose()
+    this.redMat.dispose()
   }
 }

@@ -12,8 +12,8 @@ export default defineConfig({
     process.env.NODE_ENV == 'development' ? vueDevTools({ launchEditor: 'rubymine' }) : false,
     legacy({
       targets: ['chrome >= 79', 'edge >= 79', 'safari >= 13', 'firefox >= 67'],
-      modernPolyfills: ['es.object.has-own']
-    })
+      modernPolyfills: ['es.object.has-own'],
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {

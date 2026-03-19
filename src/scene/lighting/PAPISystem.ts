@@ -1,5 +1,5 @@
 import * as BABYLON from 'babylonjs'
-import { SafeMeshBuilder } from '@/scene/utils/SafeMeshBuilder'
+import * as SafeMesh from '@/scene/utils/SafeMeshBuilder'
 import {
   feetToMeters,
   RUNWAY_WIDTH_FT,
@@ -26,8 +26,8 @@ export class PAPISystem {
 
   private createMaterials(): void {
     // Dispose of existing materials if any
-    SafeMeshBuilder.disposeMaterial(this.papiRedMat)
-    SafeMeshBuilder.disposeMaterial(this.papiWhiteMat)
+    SafeMesh.disposeMaterial(this.papiRedMat)
+    SafeMesh.disposeMaterial(this.papiWhiteMat)
 
     this.papiRedMat = new BABYLON.StandardMaterial('papiRed', this.scene)
     this.papiRedMat.emissiveColor = new BABYLON.Color3(1, 0, 0)
@@ -40,13 +40,13 @@ export class PAPISystem {
 
   create(): void {
     // Check if scene is valid before creating meshes
-    if (!SafeMeshBuilder.isSceneReady(this.scene)) {
+    if (!SafeMesh.isSceneReady(this.scene)) {
       console.warn('Scene is not available or disposed, skipping PAPI lights creation')
       return
     }
 
     // Dispose of existing PAPI lights if any
-    SafeMeshBuilder.disposeMeshes(this.papiLights)
+    SafeMesh.disposeMeshes(this.papiLights)
     this.papiLights = []
 
     const tdzMeters = feetToMeters(TOUCHDOWN_ZONE_DISTANCE_FT)
@@ -59,11 +59,7 @@ export class PAPISystem {
 
     // PAPI lights should be perpendicular to runway (varying X position)
     for (let i = 0; i < 4; i++) {
-      const papi = SafeMeshBuilder.createSphere(
-        `papi_${i}`,
-        { diameter: 1.5, segments: 8 },
-        this.scene,
-      )
+      const papi = SafeMesh.createSphere(`papi_${i}`, { diameter: 1.5, segments: 8 }, this.scene)
 
       if (papi) {
         papi.position.set(
@@ -104,7 +100,7 @@ export class PAPISystem {
 
     // Determine PAPI configuration based on angle
     // PAPI angles: 2.5° (all red), 2.75° (1W 3R), 3.0° (2W 2R), 3.25° (3W 1R), 3.5° (all white)
-    let redCount = 2 // Default to on glidepath
+    let redCount: number
 
     if (angleDegrees >= 3.5) {
       redCount = 0 // All white - too high
@@ -121,9 +117,7 @@ export class PAPISystem {
     // Update light colors
     for (let i = 0; i < 4; i++) {
       const light = this.papiLights[i]
-      if (light) {
-        light.material = i < redCount ? this.papiRedMat : this.papiWhiteMat
-      }
+      light.material = i < redCount ? this.papiRedMat : this.papiWhiteMat
     }
   }
 
@@ -132,11 +126,11 @@ export class PAPISystem {
   }
 
   dispose(): void {
-    SafeMeshBuilder.disposeMeshes(this.papiLights)
+    SafeMesh.disposeMeshes(this.papiLights)
     this.papiLights = []
 
-    SafeMeshBuilder.disposeMaterial(this.papiRedMat)
-    SafeMeshBuilder.disposeMaterial(this.papiWhiteMat)
+    SafeMesh.disposeMaterial(this.papiRedMat)
+    SafeMesh.disposeMaterial(this.papiWhiteMat)
     this.papiRedMat = null
     this.papiWhiteMat = null
   }

@@ -7,7 +7,7 @@ import { feetToMeters } from '@/types/approach'
  * Base class for MALS, MALSF, and MALSR systems
  */
 export class MALSSystem extends ApproachLightingSystem {
-  protected prefix: string = 'mals'
+  protected prefix = 'mals'
 
   create(): void {
     this.createMALSBase()
@@ -30,7 +30,7 @@ export class MALSSystem extends ApproachLightingSystem {
           const light = this.createLight(
             `${this.prefix}_bar_${ft}_${i}`,
             new BABYLON.Vector3(x, 2, z),
-            this.whiteMat!,
+            this.whiteMat,
             0.6,
           )
           this.approachLights.push(light)
@@ -49,7 +49,7 @@ export class MALSSystem extends ApproachLightingSystem {
       const light = this.createLight(
         `${this.prefix}_1000_center_${i}`,
         new BABYLON.Vector3(x, 2, z),
-        this.whiteMat!,
+        this.whiteMat,
         0.6,
       )
       this.approachLights.push(light)
@@ -63,7 +63,7 @@ export class MALSSystem extends ApproachLightingSystem {
         const light = this.createLight(
           `${this.prefix}_1000_side_${side}_${i}`,
           new BABYLON.Vector3(x, 2, z),
-          this.whiteMat!,
+          this.whiteMat,
           0.6,
         )
         this.approachLights.push(light)
@@ -80,7 +80,7 @@ export class MALSSystem extends ApproachLightingSystem {
       const light = this.createLight(
         `${this.prefix}_threshold_${i}`,
         new BABYLON.Vector3(x, 1, 0),
-        this.greenMat!,
+        this.greenMat,
         0.8,
       )
       this.approachLights.push(light)

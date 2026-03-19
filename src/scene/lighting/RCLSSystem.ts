@@ -9,9 +9,9 @@ export class RCLSSystem {
   private scene: BABYLON.Scene
   private rclsLights: BABYLON.Mesh[] = []
   private glowLayer: BABYLON.GlowLayer | null = null
-  private whiteMat: BABYLON.StandardMaterial | null = null
-  private redMat: BABYLON.StandardMaterial | null = null
-  private alternateMat: BABYLON.StandardMaterial | null = null
+  private whiteMat!: BABYLON.StandardMaterial
+  private redMat!: BABYLON.StandardMaterial
+  private alternateMat!: BABYLON.StandardMaterial
 
   constructor(scene: BABYLON.Scene, glowLayer: BABYLON.GlowLayer | null) {
     this.scene = scene
@@ -67,7 +67,7 @@ export class RCLSSystem {
         this.scene,
       )
       light.position.set(0, 0.1, z) // Embedded in runway surface
-      light.material = material!
+      light.material = material
 
       if (this.glowLayer) {
         this.glowLayer.addIncludedOnlyMesh(light)
@@ -82,11 +82,13 @@ export class RCLSSystem {
   }
 
   dispose(): void {
-    this.rclsLights.forEach((light) => light.dispose())
+    this.rclsLights.forEach((light) => {
+      light.dispose()
+    })
     this.rclsLights = []
 
-    this.whiteMat?.dispose()
-    this.redMat?.dispose()
-    this.alternateMat?.dispose()
+    this.whiteMat.dispose()
+    this.redMat.dispose()
+    this.alternateMat.dispose()
   }
 }

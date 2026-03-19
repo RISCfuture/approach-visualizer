@@ -41,7 +41,7 @@ export class ALSFISystem extends ApproachLightingSystem {
           const light = this.createLight(
             `alsf1_bar_${ft}_${i}`,
             new BABYLON.Vector3(x, 2, z),
-            this.whiteMat!,
+            this.whiteMat,
             0.6,
           )
           this.approachLights.push(light)
@@ -57,7 +57,7 @@ export class ALSFISystem extends ApproachLightingSystem {
       const light = this.createLight(
         `alsf1_1000_center_${i}`,
         new BABYLON.Vector3(x, 2, z),
-        this.whiteMat!,
+        this.whiteMat,
         0.6,
       )
       this.approachLights.push(light)
@@ -70,7 +70,7 @@ export class ALSFISystem extends ApproachLightingSystem {
         const light = this.createLight(
           `alsf1_1000_side_${side}_${i}`,
           new BABYLON.Vector3(x, 2, z),
-          this.whiteMat!,
+          this.whiteMat,
           0.6,
         )
         this.approachLights.push(light)
@@ -90,7 +90,7 @@ export class ALSFISystem extends ApproachLightingSystem {
         const light = this.createLight(
           `alsf1_prethresh_${side}_${i}`,
           new BABYLON.Vector3(x, 2, preThresholdZ),
-          this.redMat!,
+          this.redMat,
           0.6,
         )
         this.approachLights.push(light)
@@ -110,7 +110,7 @@ export class ALSFISystem extends ApproachLightingSystem {
         const light = this.createLight(
           `alsf1_term_${side}_${i}`,
           new BABYLON.Vector3(x, 2, termZ),
-          this.redMat!,
+          this.redMat,
           0.6,
         )
         this.approachLights.push(light)

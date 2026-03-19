@@ -15,11 +15,11 @@ export abstract class ApproachLightingSystem {
   protected glowLayer: BABYLON.GlowLayer | null = null
   protected runwayWidthM: number
 
-  // Common materials
-  protected whiteMat: BABYLON.StandardMaterial | null = null
-  protected redMat: BABYLON.StandardMaterial | null = null
-  protected greenMat: BABYLON.StandardMaterial | null = null
-  protected strobeMat: BABYLON.StandardMaterial | null = null
+  // Common materials - initialized in createMaterials() called from constructor
+  protected whiteMat!: BABYLON.StandardMaterial
+  protected redMat!: BABYLON.StandardMaterial
+  protected greenMat!: BABYLON.StandardMaterial
+  protected strobeMat!: BABYLON.StandardMaterial
 
   constructor(scene: BABYLON.Scene, glowLayer: BABYLON.GlowLayer | null) {
     this.scene = scene
@@ -54,7 +54,7 @@ export abstract class ApproachLightingSystem {
     name: string,
     position: BABYLON.Vector3,
     material: BABYLON.StandardMaterial,
-    diameter: number = 0.6,
+    diameter = 0.6,
   ): BABYLON.Mesh {
     const light = BABYLON.MeshBuilder.CreateSphere(name, { diameter, segments: 8 }, this.scene)
     light.position = position
@@ -70,8 +70,8 @@ export abstract class ApproachLightingSystem {
   protected createCenterlineBar(
     prefix: string,
     z: number,
-    numLights: number = 5,
-    spacing: number = 3.5, // feet between lights
+    numLights = 5,
+    spacing = 3.5, // feet between lights
   ): void {
     const spacingM = feetToMeters(spacing)
     const startX = (-(numLights - 1) * spacingM) / 2
@@ -81,7 +81,7 @@ export abstract class ApproachLightingSystem {
       const light = this.createLight(
         `${prefix}_${i}`,
         new BABYLON.Vector3(x, 2, z),
-        this.whiteMat!,
+        this.whiteMat,
         0.6,
       )
       this.approachLights.push(light)
@@ -89,7 +89,7 @@ export abstract class ApproachLightingSystem {
   }
 
   protected createThresholdBar(
-    extensionFt: number = 45, // Extension beyond runway edge on each side
+    extensionFt = 45, // Extension beyond runway edge on each side
   ): void {
     const thresholdBarWidth = this.runwayWidthM + feetToMeters(extensionFt * 2)
     const thresholdLightSpacing = feetToMeters(5) // 5 ft centers per spec
@@ -100,7 +100,7 @@ export abstract class ApproachLightingSystem {
       const light = this.createLight(
         `threshold_${i}`,
         new BABYLON.Vector3(x, 1, 0),
-        this.greenMat!,
+        this.greenMat,
         0.8,
       )
       this.approachLights.push(light)
@@ -108,7 +108,7 @@ export abstract class ApproachLightingSystem {
   }
 
   protected createSequencedFlasher(name: string, position: BABYLON.Vector3): BABYLON.Mesh {
-    const flasher = this.createLight(name, position, this.strobeMat!, 1.5)
+    const flasher = this.createLight(name, position, this.strobeMat, 1.5)
     this.sequencedFlashers.push(flasher)
     this.approachLights.push(flasher)
     return flasher
@@ -128,14 +128,16 @@ export abstract class ApproachLightingSystem {
   }
 
   public dispose(): void {
-    this.approachLights.forEach((light) => light.dispose())
+    this.approachLights.forEach((light) => {
+      light.dispose()
+    })
     this.approachLights = []
     this.sequencedFlashers = []
 
     // Dispose materials
-    this.whiteMat?.dispose()
-    this.redMat?.dispose()
-    this.greenMat?.dispose()
-    this.strobeMat?.dispose()
+    this.whiteMat.dispose()
+    this.redMat.dispose()
+    this.greenMat.dispose()
+    this.strobeMat.dispose()
   }
 }

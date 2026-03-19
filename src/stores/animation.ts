@@ -107,6 +107,19 @@ export const useAnimationStore = defineStore('animation', () => {
     }),
   )
 
+  function stop() {
+    isPlaying.value = false
+    isPaused.value = false
+    animationStartTime.value = null
+    pausedTime.value = null
+  }
+
+  function reset() {
+    stop()
+    currentDistanceNm.value = startingDistanceNm.value
+    hasBrokenOut.value = false
+  }
+
   function play() {
     if (!isPlaying.value) {
       reset()
@@ -128,19 +141,6 @@ export const useAnimationStore = defineStore('animation', () => {
       isPaused.value = true
       pausedTime.value = Date.now()
     }
-  }
-
-  function stop() {
-    isPlaying.value = false
-    isPaused.value = false
-    animationStartTime.value = null
-    pausedTime.value = null
-  }
-
-  function reset() {
-    stop()
-    currentDistanceNm.value = startingDistanceNm.value
-    hasBrokenOut.value = false
   }
 
   function updatePosition(deltaTime: number) {

@@ -47,7 +47,9 @@ export class RunwayManager {
 
   private createRunwayMarkings(length: number, width: number, isDarkMode: boolean): void {
     // Clear existing markings
-    this.markings.forEach((marking) => marking.dispose())
+    this.markings.forEach((marking) => {
+      marking.dispose()
+    })
     this.markings = []
 
     const markingMat = createRunwayMarkingMaterial('marking', this.scene, isDarkMode)
@@ -218,7 +220,9 @@ export class RunwayManager {
       this.ground.dispose()
       this.ground = null
     }
-    this.markings.forEach((marking) => marking.dispose())
+    this.markings.forEach((marking) => {
+      marking.dispose()
+    })
     this.markings = []
   }
 }

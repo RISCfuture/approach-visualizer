@@ -99,7 +99,9 @@ export class REILSystem {
 
   dispose(): void {
     this.stopFlashing()
-    this.reilLights.forEach((light) => light.dispose())
+    this.reilLights.forEach((light) => {
+      light.dispose()
+    })
     this.reilLights = []
     this.strobeMat?.dispose()
   }
