@@ -4,24 +4,24 @@ import type { ApproachSettings, ApproachMinimum, LightingType } from '@/types/ap
 import { APPROACH_MINIMA } from '@/types/approach'
 
 export const useApproachStore = defineStore('approach', () => {
-  const selectedMinimumId = ref<string>('cat-i')
+  const selectedMinimumId = ref('cat-i')
   const customCeiling = ref<number | null>(null)
   const customVisibility = ref<number | null>(null)
   const customVisibilityUnit = ref<'SM' | 'RVR' | null>(null) // Track unit separately
   const lightingType = ref<LightingType>('ALSF-II')
-  const approachSpeed = ref<number>(120)
+  const approachSpeed = ref(120)
 
   // Runway lighting components
-  const showREIL = ref<boolean>(true)
-  const showRCLS = ref<boolean>(true)
-  const showEdgeLights = ref<boolean>(true)
-  const showPAPI = ref<boolean>(true)
+  const showREIL = ref(true)
+  const showRCLS = ref(true)
+  const showEdgeLights = ref(true)
+  const showPAPI = ref(true)
 
   // Runway markings
-  const showThresholdMarkings = ref<boolean>(true)
-  const showTouchdownZone = ref<boolean>(true)
-  const showSideStripes = ref<boolean>(true)
-  const showAimPoint = ref<boolean>(true)
+  const showThresholdMarkings = ref(true)
+  const showTouchdownZone = ref(true)
+  const showSideStripes = ref(true)
+  const showAimPoint = ref(true)
 
   const selectedMinimum = computed((): ApproachMinimum | undefined => {
     return APPROACH_MINIMA.find((m) => m.id === selectedMinimumId.value)
