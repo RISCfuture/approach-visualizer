@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "project": ["src/**/*.{ts,vue}"],
   "ignore": [
     "src/__tests__/**",
@@ -13,6 +13,7 @@
     "exports": "warn",
     "dependencies": "warn",
     "devDependencies": "warn",
+    "binaries": "off",
     "unlisted": "off",
     "unresolved": "off"
   }
