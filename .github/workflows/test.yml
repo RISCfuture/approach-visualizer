@@ -29,9 +29,13 @@ jobs:
       - name: Run unit tests
         run: yarn test:unit --run
 
+      - name: Install Playwright system dependencies
+        run: yarn playwright install-deps chromium webkit
+        timeout-minutes: 3
+
       - name: Install Playwright browsers
-        run: yarn playwright install --with-deps chromium webkit
-        timeout-minutes: 5
+        run: yarn playwright install chromium webkit
+        timeout-minutes: 3
 
       - name: Build application
         run: yarn build
