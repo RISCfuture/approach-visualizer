@@ -34,28 +34,6 @@ export function createSphere(
 }
 
 /**
- * Safely create a box mesh
- */
-export function createBox(
-  name: string,
-  options: { size?: number; width?: number; height?: number; depth?: number } = {},
-  scene: BABYLON.Scene,
-): BABYLON.Mesh | null {
-  return createMesh(() => BABYLON.MeshBuilder.CreateBox(name, options, scene), name, scene)
-}
-
-/**
- * Safely create a ground mesh
- */
-export function createGround(
-  name: string,
-  options: { width?: number; height?: number; subdivisions?: number } = {},
-  scene: BABYLON.Scene,
-): BABYLON.Mesh | null {
-  return createMesh(() => BABYLON.MeshBuilder.CreateGround(name, options, scene), name, scene)
-}
-
-/**
  * Safely dispose of a mesh
  */
 export function disposeMesh(mesh: BABYLON.Mesh | null): void {
