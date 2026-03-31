@@ -98,12 +98,13 @@ export const LIGHTING_TYPES: { value: LightingType; label: string }[] = [
 ]
 
 export const GLIDESLOPE_ANGLE = 3
-export const FAF_DISTANCE_NM = 5
 export const RUNWAY_LENGTH_FT = 10000
 export const RUNWAY_WIDTH_FT = 150
 export const FEET_PER_NM = 6076.12
 export const TOUCHDOWN_ZONE_DISTANCE_FT = 1000 // 1000 ft past threshold
 
+// Used by WeatherEffects.ts (knip-ignored file)
+/** @public */
 export function rvrToStatuteMiles(rvr: number): number {
   return rvr / 5280
 }
