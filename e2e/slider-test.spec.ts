@@ -1,88 +1,64 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures/fixtures'
 
-test('Position slider functionality', async ({ page }) => {
-  await page.goto('/?testMode=true')
+test('Position slider functionality', async ({ approachPage }) => {
+  // Triple the default timeout — this test performs multiple drag operations
+  // and screenshots involving WebGL rendering, which is slow on CI runners
+  // without GPU acceleration.
+  test.slow()
+  await approachPage.goto()
   // Wait for page to be ready
-  const canvas = page.locator('canvas.babylon-canvas')
-  await expect(canvas).toBeVisible({ timeout: 5000 })
+  await approachPage.waitForCanvasVisible()
+
+  const { statusOverlay, positionSlider } = approachPage
 
   // Check initial position from status overlay
-  const initialAltitude = await page.locator('.status-value').first().textContent()
-  const initialDistance = await page.locator('.status-value').last().textContent()
+  const initialAltitude = await statusOverlay.getAltitudeText()
+  const initialDistance = await statusOverlay.getDistanceText()
   console.log('[E2E] Initial position:', initialAltitude, initialDistance)
 
   // Take screenshot at start
-  await page.screenshot({
-    path: 'e2e/screenshots/slider-1-start.png',
-    fullPage: false,
-  })
+  await approachPage.takeScreenshot('e2e/screenshots/slider-1-start.png')
 
-  // Find the slider and drag it to 50%
-  const slider = page.locator('.p-slider')
-  const sliderBox = await slider.boundingBox()
-
+  // Find the slider and verify it exists
+  const sliderBox = await positionSlider.getSliderBoundingBox()
   expect(sliderBox).toBeTruthy()
 
   // Drag to 50%
-  await page.mouse.move(sliderBox!.x + sliderBox!.width * 0.1, sliderBox!.y + sliderBox!.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(sliderBox!.x + sliderBox!.width * 0.5, sliderBox!.y + sliderBox!.height / 2)
-  await page.mouse.up()
+  await positionSlider.dragToPercent(0.1, 0.5)
 
   // Let slider position update
-  await expect(page.locator('.status-value').first()).toBeVisible()
+  await expect(statusOverlay.altitudeValue).toBeVisible()
 
-  const midAltitude = await page.locator('.status-value').first().textContent()
-  const midDistance = await page.locator('.status-value').last().textContent()
+  const midAltitude = await statusOverlay.getAltitudeText()
+  const midDistance = await statusOverlay.getDistanceText()
   console.log('[E2E] Mid position (50%):', midAltitude, midDistance)
 
-  await page.screenshot({
-    path: 'e2e/screenshots/slider-2-mid.png',
-    fullPage: false,
-  })
+  await approachPage.takeScreenshot('e2e/screenshots/slider-2-mid.png')
 
-  // Drag to 90% (near end, should be around 10 ft)
-  await page.mouse.move(sliderBox!.x + sliderBox!.width * 0.5, sliderBox!.y + sliderBox!.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(
-    sliderBox!.x + sliderBox!.width * 0.95,
-    sliderBox!.y + sliderBox!.height / 2,
-  )
-  await page.mouse.up()
+  // Drag to 95% (near end, should be around 10 ft)
+  await positionSlider.dragToPercent(0.5, 0.95)
 
   // Let slider position update
-  await expect(page.locator('.status-value').first()).toBeVisible()
+  await expect(statusOverlay.altitudeValue).toBeVisible()
 
-  const endAltitude = await page.locator('.status-value').first().textContent()
-  const endDistance = await page.locator('.status-value').last().textContent()
+  const endAltitude = await statusOverlay.getAltitudeText()
+  const endDistance = await statusOverlay.getDistanceText()
   console.log('[E2E] End position (95%):', endAltitude, endDistance)
 
-  await page.screenshot({
-    path: 'e2e/screenshots/slider-3-end.png',
-    fullPage: false,
-  })
+  await approachPage.takeScreenshot('e2e/screenshots/slider-3-end.png')
 
   // Check that we can still see the runway at 10 ft
   expect(endAltitude).toContain('ft')
 
   // Drag back to beginning
-  await page.mouse.move(
-    sliderBox!.x + sliderBox!.width * 0.95,
-    sliderBox!.y + sliderBox!.height / 2,
-  )
-  await page.mouse.down()
-  await page.mouse.move(sliderBox!.x + 5, sliderBox!.y + sliderBox!.height / 2)
-  await page.mouse.up()
+  await positionSlider.dragToPercent(0.95, 0)
 
   // Let slider position update
-  await expect(page.locator('.status-value').first()).toBeVisible()
+  await expect(statusOverlay.altitudeValue).toBeVisible()
 
-  const resetAltitude = await page.locator('.status-value').first().textContent()
-  const resetDistance = await page.locator('.status-value').last().textContent()
+  const resetAltitude = await statusOverlay.getAltitudeText()
+  const resetDistance = await statusOverlay.getDistanceText()
   console.log('[E2E] Reset position:', resetAltitude, resetDistance)
 
-  await page.screenshot({
-    path: 'e2e/screenshots/slider-4-reset.png',
-    fullPage: false,
-  })
+  await approachPage.takeScreenshot('e2e/screenshots/slider-4-reset.png')
 })
