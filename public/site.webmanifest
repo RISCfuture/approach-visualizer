@@ -1,0 +1,46 @@
+{
+  "name": "Approach Visualizer",
+  "short_name": "Approach Viz",
+  "description": "Visualize instrument approach procedures and flight paths",
+  "start_url": "/approach-visualizer/",
+  "scope": "/approach-visualizer/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#667eea",
+  "background_color": "#000000",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "navigation", "utilities"],
+  "icons": [
+    {
+      "src": "/approach-visualizer/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/approach-visualizer/apple-touch-icon-ipad-retina.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/approach-visualizer/apple-touch-icon-iphone-6p.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/approach-visualizer/mstile-270x270.png",
+      "sizes": "270x270",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/approach-visualizer/mstile-310x310.png",
+      "sizes": "310x310",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

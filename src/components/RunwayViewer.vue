@@ -63,7 +63,20 @@ watch(
 
 <template>
   <div class="runway-viewer">
-    <canvas ref="canvas" class="babylon-canvas"></canvas>
+    <canvas
+      ref="canvas"
+      class="babylon-canvas"
+      role="img"
+      aria-label="Interactive 3D runway approach visualization"
+      aria-describedby="canvas-description"
+    ></canvas>
+    <p id="canvas-description" class="sr-only">
+      An interactive WebGL-rendered 3D scene depicting an aircraft on a runway approach. The
+      visualization shows the runway, approach lighting system, and the aircraft's position relative
+      to the runway during a simulated instrument approach. Use the controls in the header above to
+      configure the approach minimum, runway lighting type, and aircraft speed. Press the spacebar
+      to play or pause the animation.
+    </p>
 
     <!-- WebGL Error Message -->
     <div v-if="webGLError" class="webgl-error">
@@ -115,6 +128,19 @@ watch(
   width: 100%;
   height: 100%;
   outline: none;
+}
+
+/* Visually hidden but available to assistive technology */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .status-overlay {
