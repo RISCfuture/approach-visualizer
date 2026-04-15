@@ -1,9 +1,54 @@
 <!doctype html>
-<html lang="">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#667eea" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a2547" media="(prefers-color-scheme: dark)" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      http-equiv="Permissions-Policy"
+      content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+    />
+    <meta name="author" content="Timothy Morgan" />
+
+    <!-- Favicons -->
+    <link rel="icon" href="/approach-visualizer/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/approach-visualizer/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/approach-visualizer/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/approach-visualizer/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/approach-visualizer/favicon-96x96.png" />
+    <link rel="mask-icon" href="/approach-visualizer/pinned-tab.svg" color="#667eea" />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="/approach-visualizer/apple-touch-icon-iphone-retina.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="/approach-visualizer/apple-touch-icon-ipad-retina.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="167x167"
+      href="/approach-visualizer/apple-touch-icon-ipad-pro.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/approach-visualizer/apple-touch-icon-iphone-6p.png"
+    />
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/approach-visualizer/site.webmanifest" />
+
+    <!-- Apple PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Approach Viz" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- Primary Meta Tags -->
     <title>Approach Visualizer</title>
@@ -18,7 +63,10 @@
       property="og:description"
       content="Visualize instrument approach procedures and flight paths"
     />
-    <meta property="og:image" content="/favicon.ico" />
+    <meta
+      property="og:image"
+      content="https://tim.codes/approach-visualizer/apple-touch-icon-iphone-6p.png"
+    />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary" />
@@ -28,15 +76,52 @@
       property="twitter:description"
       content="Visualize instrument approach procedures and flight paths"
     />
-    <meta property="twitter:image" content="/favicon.ico" />
-
-    <link
-      id="theme-link"
-      rel="stylesheet"
-      href="/node_modules/primevue/resources/themes/lara-light-blue/theme.css"
+    <meta
+      property="twitter:image"
+      content="https://tim.codes/approach-visualizer/apple-touch-icon-iphone-6p.png"
     />
+
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Approach Visualizer",
+        "description": "Interactive 3D visualization of instrument approach procedures, runway lighting systems, and aircraft flight paths for pilot training and reference.",
+        "url": "https://tim.codes/approach-visualizer/",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript and WebGL.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
   <body>
+    <noscript>
+      <div
+        style="
+          padding: 2rem;
+          margin: 2rem auto;
+          max-width: 600px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          color: #333;
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 0.5rem;
+        "
+      >
+        <h1>JavaScript Required</h1>
+        <p>
+          Approach Visualizer is an interactive 3D application that requires JavaScript and a
+          WebGL-capable browser to run. Please enable JavaScript and use a modern browser (Chrome,
+          Firefox, Safari, or Edge) to view this site.
+        </p>
+      </div>
+    </noscript>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
