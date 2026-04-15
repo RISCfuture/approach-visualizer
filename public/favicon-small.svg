@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="geometricPrecision">
+  <!-- Sky (30%) -->
+  <rect width="64" height="19" fill="#2a4565"/>
+  <!-- Ground (70%) -->
+  <rect y="19" width="64" height="45" fill="#243018"/>
+
+  <!-- Runway trapezoid — wider, occupies right ~60% of canvas -->
+  <polygon points="22,64 63,64 50,19 42,19" fill="#1a1a1a"/>
+
+  <!-- Bold runway edge stripes, tapering with perspective -->
+  <polygon points="22,64 26,64 43,19 42,19" fill="#f0f0f0"/>
+  <polygon points="59,64 63,64 50,19 49,19" fill="#f0f0f0"/>
+
+  <!-- PAPI 4-dot array on left, narrower spacing -->
+  <circle cx="3" cy="49" r="2.5" fill="#ee2222"/>
+  <circle cx="8" cy="49" r="2.5" fill="#ee2222"/>
+  <circle cx="13" cy="49" r="2.5" fill="#ffffff"/>
+  <circle cx="18" cy="49" r="2.5" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="black">
+  <!-- Runway trapezoid with a single centerline stripe cut out (even-odd fill) -->
+  <path fill-rule="evenodd" d="M26,64 L62,64 L49,19 L41,19 Z M43.5,32 L45,32 L45.2,55 L43.3,55 Z"/>
+
+  <!-- PAPI four-dot array -->
+  <circle cx="4" cy="50" r="3"/>
+  <circle cx="11.5" cy="50" r="3"/>
+  <circle cx="19" cy="50" r="3"/>
+  <circle cx="26.5" cy="50" r="3"/>
+</svg>

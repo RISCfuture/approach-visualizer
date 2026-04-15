@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" shape-rendering="geometricPrecision">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d2540"/>
+      <stop offset="70%" stop-color="#3a5572"/>
+      <stop offset="100%" stop-color="#7a8a9a"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2d3a22"/>
+      <stop offset="100%" stop-color="#1a2614"/>
+    </linearGradient>
+    <linearGradient id="runway" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#3a3a3a"/>
+    </linearGradient>
+    <radialGradient id="redLight" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ff5555"/>
+      <stop offset="50%" stop-color="#ee1111"/>
+      <stop offset="100%" stop-color="#aa0000"/>
+    </radialGradient>
+    <radialGradient id="whiteLight" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#fff8d0"/>
+      <stop offset="100%" stop-color="#cccc88"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky (30%) -->
+  <rect width="512" height="154" fill="url(#sky)"/>
+  <!-- Ground (70%) -->
+  <rect y="154" width="512" height="358" fill="url(#ground)"/>
+
+  <!-- Runway — wider near-end, occupies ~60% of canvas width -->
+  <!-- Near-end: x=180..510, Far-end: x=322..400 -->
+  <polygon points="180,512 510,512 400,154 322,154" fill="url(#runway)"/>
+
+  <!-- Threshold piano keys: 8 bars, perspective-trapezoid shapes -->
+  <g fill="#f0f0f0">
+    <polygon points="180,512 207,512 214,492 188,492"/>
+    <polygon points="223,512 250,512 255,492 229,492"/>
+    <polygon points="266,512 293,512 296,492 270,492"/>
+    <polygon points="308,512 336,512 337,492 311,492"/>
+    <polygon points="351,512 379,512 378,492 352,492"/>
+    <polygon points="394,512 422,512 419,492 393,492"/>
+    <polygon points="437,512 464,512 460,492 434,492"/>
+    <polygon points="480,512 510,512 502,492 476,492"/>
+  </g>
+
+  <!-- Centerline dashes, perspective-tapered along runway axis -->
+  <g fill="#f0f0f0">
+    <polygon points="341,470 354,470 353,438 343,438"/>
+    <polygon points="344,418 352,418 352,390 345,390"/>
+    <polygon points="346,372 351,372 351,350 347,350"/>
+    <polygon points="348,335 350,335 350,318 348,318"/>
+  </g>
+
+  <!-- Touchdown zone aim-point bars (large, just beyond piano keys) -->
+  <g fill="#f0f0f0">
+    <polygon points="302,468 332,468 333,444 304,444"/>
+    <polygon points="363,468 393,468 391,444 362,444"/>
+  </g>
+
+  <!-- Runway edge lights — tapered along actual edges of the trapezoid -->
+  <g fill="#fff8d0">
+    <!-- Left edge: from (180,512) to (322,154) -->
+    <circle cx="181" cy="510" r="4"/>
+    <circle cx="202" cy="462" r="3.4"/>
+    <circle cx="220" cy="421" r="2.9"/>
+    <circle cx="234" cy="386" r="2.5"/>
+    <circle cx="247" cy="356" r="2.1"/>
+    <circle cx="258" cy="330" r="1.7"/>
+    <circle cx="267" cy="307" r="1.4"/>
+    <!-- Right edge: from (510,512) to (400,154) -->
+    <circle cx="509" cy="510" r="4"/>
+    <circle cx="493" cy="462" r="3.4"/>
+    <circle cx="480" cy="421" r="2.9"/>
+    <circle cx="469" cy="386" r="2.5"/>
+    <circle cx="459" cy="356" r="2.1"/>
+    <circle cx="451" cy="330" r="1.7"/>
+    <circle cx="444" cy="307" r="1.4"/>
+  </g>
+
+  <!-- PAPI: 4-light array on left, compressed.
+       Pilot view on 3° glideslope, outboard→inboard = R, R, W, W -->
+  <g opacity="0.35">
+    <circle cx="32" cy="430" r="16" fill="#ff3333"/>
+    <circle cx="64" cy="430" r="16" fill="#ff3333"/>
+    <circle cx="96" cy="430" r="16" fill="#ffffcc"/>
+    <circle cx="128" cy="430" r="16" fill="#ffffcc"/>
+  </g>
+  <g>
+    <circle cx="32" cy="430" r="11" fill="url(#redLight)"/>
+    <circle cx="64" cy="430" r="11" fill="url(#redLight)"/>
+    <circle cx="96" cy="430" r="11" fill="url(#whiteLight)"/>
+    <circle cx="128" cy="430" r="11" fill="url(#whiteLight)"/>
+  </g>
+</svg>
