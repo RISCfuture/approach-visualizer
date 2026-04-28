@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import legacy from '@vitejs/plugin-legacy'
 import csp from 'vite-plugin-csp-guard'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // The CSP plugin should only run during `vite build` (production bundling). During
 // `vite dev` it slows the server noticeably, and during vitest it isn't needed at
@@ -22,6 +23,23 @@ export default defineConfig({
     legacy({
       targets: ['chrome >= 79', 'edge >= 79', 'safari >= 13', 'firefox >= 67'],
       modernPolyfills: ['es.object.has-own'],
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: false,
+      injectRegister: 'script',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff,woff2}'],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/, /\.map$/],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        // PrimeVue + flight visualization libs push the main chunk past 2 MiB,
+        // and the legacy bundle is even larger. Raise from the default so the
+        // whole app shell precaches.
+        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024,
+      },
     }),
     isBuild &&
       csp({
