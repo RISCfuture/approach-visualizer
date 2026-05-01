@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted, ref } from 'vue'
+import { computed, watch, ref } from 'vue'
+import { useEventListener, useTimeoutFn } from '@vueuse/core'
 import Select from 'primevue/select'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
@@ -372,20 +373,13 @@ function handleKeyDown(event: KeyboardEvent) {
   }
 }
 
-onMounted(() => {
-  window.addEventListener('keydown', handleKeyDown)
+useEventListener(window, 'keydown', handleKeyDown)
 
-  // Auto-play animation after 1 second
-  setTimeout(() => {
-    if (!animationStore.isPlaying) {
-      animationStore.play()
-    }
-  }, 1000)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyDown)
-})
+useTimeoutFn(() => {
+  if (!animationStore.isPlaying) {
+    animationStore.play()
+  }
+}, 1000)
 </script>
 
 <template>

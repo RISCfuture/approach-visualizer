@@ -24,6 +24,7 @@
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
     "@sentry/vue": "^10.45.0",
+    "@vueuse/core": "^14.3.0",
     "babylonjs": "^8.56.2",
     "normalize.css": "^8.0.1",
     "pinia": "^3.0.4",
