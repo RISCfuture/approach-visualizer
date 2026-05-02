@@ -73,7 +73,7 @@ export class REILSystem {
         }
       })
       visible = !visible
-    }, 250) as unknown as number // 250ms = 4 changes per second = 2 Hz
+    }, 250) // 250ms = 4 changes per second = 2 Hz
   }
 
   /**

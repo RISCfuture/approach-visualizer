@@ -44,8 +44,9 @@ export default tseslint.config(
     },
   },
   {
-    // Config files live outside tsconfig — disable type-checked rules
-    files: ['*.config.ts', '*.config.js'],
+    // Config files (and Vite plugins they pull in from `build/`) live outside
+    // tsconfig — disable type-checked rules.
+    files: ['*.config.ts', '*.config.js', 'build/**/*.ts'],
     ...tseslint.configs.disableTypeChecked,
   },
   {

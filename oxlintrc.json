@@ -42,7 +42,6 @@
     "prefer-destructuring": "off",
     "no-multi-assign": "off",
     "init-declarations": "off",
-    "one-var": "off",
     "max-classes-per-file": "off",
     "new-cap": "off",
     "default-param-last": "off",
@@ -56,6 +55,9 @@
     "typescript/explicit-function-return-type": "off",
     "typescript/explicit-module-boundary-types": "off",
     "typescript/consistent-type-imports": "off",
+    "typescript/explicit-member-accessibility": "off",
+
+    "branches-sharing-code": "off",
 
     "no-promise-executor-return": "off",
     "no-implicit-coercion": "off",
@@ -81,8 +83,6 @@
     "unicorn/prefer-global-this": "off",
     "unicorn/prefer-add-event-listener": "off",
     "unicorn/prefer-optional-catch-binding": "off",
-    "unicorn/no-array-push-push": "off",
-    "unicorn/no-for-loop": "off",
     "unicorn/no-static-only-class": "off",
     "unicorn/no-zero-fractions": "off",
     "unicorn/numeric-separators-style": "off",

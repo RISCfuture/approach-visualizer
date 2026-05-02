@@ -163,7 +163,7 @@ export class LightingManager {
       if (currentIndex < 0) {
         currentIndex = sequencedFlashers.length - 1
       }
-    }, timePerLight) as unknown as number
+    }, timePerLight)
   }
 
   /**
