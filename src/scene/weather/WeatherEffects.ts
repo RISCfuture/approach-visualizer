@@ -190,12 +190,12 @@ export class WeatherEffects {
     if (this.cloudParticles) {
       if (inClouds && !this.cloudParticles.isStarted()) {
         // Increase particle opacity in day mode
-        if (!isDarkMode) {
-          this.cloudParticles.color1 = new BABYLON.Color4(0.7, 0.7, 0.7, 0.15) // More opaque in day
-          this.cloudParticles.color2 = new BABYLON.Color4(0.8, 0.8, 0.8, 0.08)
-        } else {
+        if (isDarkMode) {
           this.cloudParticles.color1 = new BABYLON.Color4(0.9, 0.9, 0.9, 0.05)
           this.cloudParticles.color2 = new BABYLON.Color4(1, 1, 1, 0.02)
+        } else {
+          this.cloudParticles.color1 = new BABYLON.Color4(0.7, 0.7, 0.7, 0.15) // More opaque in day
+          this.cloudParticles.color2 = new BABYLON.Color4(0.8, 0.8, 0.8, 0.08)
         }
         this.cloudParticles.start()
       } else if (!inClouds && this.cloudParticles.isStarted()) {

@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
+import babylonjsCjsInterop from './build/vite-plugin-babylonjs-cjs-interop'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import legacy from '@vitejs/plugin-legacy'
@@ -18,6 +19,7 @@ const isBuild = process.env.npm_lifecycle_event === 'build-only' || process.env.
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    babylonjsCjsInterop(),
     vue(),
     process.env.NODE_ENV == 'development' ? vueDevTools({ launchEditor: 'rubymine' }) : false,
     legacy({

@@ -45,6 +45,7 @@ describe('RunwayViewer', () => {
 
   it('renders properly when WebGL is supported', async () => {
     // Mock successful SceneManager creation
+    // eslint-disable-next-line prefer-arrow-callback -- mock is invoked with `new`, so it must be a constructable (non-arrow) function
     ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       return mockSceneManager
     })
@@ -71,6 +72,7 @@ describe('RunwayViewer', () => {
 
   it('displays error message when WebGL is not supported', async () => {
     // Mock SceneManager constructor to throw an error
+    // eslint-disable-next-line prefer-arrow-callback -- mock is invoked with `new`, so it must be a constructable (non-arrow) function
     ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       throw new Error('WebGL is not supported')
     })
@@ -102,6 +104,7 @@ describe('RunwayViewer', () => {
 
   it('properly disposes SceneManager on unmount', async () => {
     // Mock successful SceneManager creation
+    // eslint-disable-next-line prefer-arrow-callback -- mock is invoked with `new`, so it must be a constructable (non-arrow) function
     ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       return mockSceneManager
     })
@@ -124,6 +127,7 @@ describe('RunwayViewer', () => {
 
   it('does not call dispose when SceneManager creation fails', async () => {
     // Mock SceneManager constructor to throw an error
+    // eslint-disable-next-line prefer-arrow-callback -- mock is invoked with `new`, so it must be a constructable (non-arrow) function
     ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       throw new Error('WebGL is not supported')
     })
@@ -149,6 +153,7 @@ describe('RunwayViewer', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Mock SceneManager constructor to throw an error
+    // eslint-disable-next-line prefer-arrow-callback -- mock is invoked with `new`, so it must be a constructable (non-arrow) function
     ;(SceneManager as ReturnType<typeof vi.fn>).mockImplementation(function () {
       throw new Error('WebGL is not supported')
     })

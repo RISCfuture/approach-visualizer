@@ -453,7 +453,7 @@ useTimeoutFn(() => {
         </div>
       </div>
 
-      <div style="margin-top: 1rem">
+      <div class="slider-section">
         <div class="slider-labels">
           <span>{{ startSlantDistance }} NM</span>
           <span>{{ endSlantDistance.toLocaleString() }} ft</span>
@@ -461,7 +461,7 @@ useTimeoutFn(() => {
         <div class="slider-container">
           <Slider
             v-model="positionSlider"
-            style="width: 100%"
+            class="full-width-slider"
             :min="0"
             :max="100"
             :step="0.1"
@@ -664,6 +664,14 @@ useTimeoutFn(() => {
 
 .form-buttons :deep(.p-button-label) {
   margin-left: 0 !important;
+}
+
+.slider-section {
+  margin-top: 1rem;
+}
+
+.full-width-slider {
+  width: 100%;
 }
 
 /* Slider labels should not be selectable */
