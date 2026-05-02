@@ -1,5 +1,9 @@
 # approach-visualizer
 
+[![Test](https://github.com/RISCfuture/approach-visualizer/actions/workflows/test.yml/badge.svg)](https://github.com/RISCfuture/approach-visualizer/actions/workflows/test.yml)
+[![Lint](https://github.com/RISCfuture/approach-visualizer/actions/workflows/lint.yml/badge.svg)](https://github.com/RISCfuture/approach-visualizer/actions/workflows/lint.yml)
+[![Deploy](https://github.com/RISCfuture/approach-visualizer/actions/workflows/deploy.yml/badge.svg)](https://github.com/RISCfuture/approach-visualizer/actions/workflows/deploy.yml)
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
