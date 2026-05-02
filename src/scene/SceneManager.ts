@@ -820,7 +820,7 @@ export class SceneManager {
     const meshesToRemove: BABYLON.Mesh[] = []
 
     this.scene.meshes.forEach((mesh) => {
-      if (/^(threshold|zero|nine|centerline|edgeStripe|aimingPoint|tdz_)/.exec(mesh.name)) {
+      if (/^(threshold|zero|nine|centerline|edgeStripe|aimingPoint|tdz_)/u.test(mesh.name)) {
         meshesToRemove.push(mesh as BABYLON.Mesh)
       }
     })
