@@ -1,5 +1,2 @@
-- This project uses Yarn package manager
-- Verify all changes with `yarn type-check`, `yarn test:unit`, and `yarn test:e2e`
-- Before committing, verify all files with `yarn lint:eslint`, `yarn format`, and `yarn stylelint`
-- This project is deployed to GitHub pages using GitHub Actions
-- UI components should be responsive and use PrimeVue
+- This project is deployed to GitHub Pages using GitHub Actions.
+- UI components should be responsive and use PrimeVue.
