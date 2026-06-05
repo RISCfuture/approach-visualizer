@@ -14,23 +14,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
-        run: yarn lint:eslint
+        run: pnpm run lint:eslint
 
       - name: Run oxlint
-        run: yarn lint:oxlint
+        run: pnpm run lint:oxlint
 
       - name: Run Stylelint
-        run: yarn lint:stylelint
+        run: pnpm run lint:stylelint

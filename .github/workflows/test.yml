@@ -14,34 +14,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Run unit tests
-        run: yarn test:unit --run
+        run: pnpm run test:unit --run
 
       - name: Install Playwright system dependencies
-        run: yarn playwright install-deps chromium webkit
+        run: pnpm exec playwright install-deps chromium webkit
         timeout-minutes: 3
 
       - name: Install Playwright browsers
-        run: yarn playwright install chromium webkit
+        run: pnpm exec playwright install chromium webkit
         timeout-minutes: 3
 
       - name: Build application
-        run: yarn build
+        run: pnpm run build
 
       - name: Run e2e tests
-        run: yarn test:e2e
+        run: pnpm run test:e2e
 
       - name: Upload test artifacts
         if: failure()

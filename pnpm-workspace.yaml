@@ -1,0 +1,6 @@
+allowBuilds:
+  core-js: true
+  babylonjs: true
+onlyBuiltDependencies:
+  - core-js
+  - babylonjs
