@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { SceneManager } from '@/scene/SceneManager'
 import { useApproachStore } from '@/stores/approach'
 import { useAnimationStore } from '@/stores/animation'
 import { formatAltitude, formatNauticalMiles } from '@/utils/formatting'
+
+const { t } = useI18n({ useScope: 'global' })
 
 const canvas = ref<HTMLCanvasElement>()
 const sceneManager = ref<SceneManager | null>(null)
@@ -67,28 +70,24 @@ watch(
       ref="canvas"
       class="babylon-canvas"
       role="img"
-      aria-label="Interactive 3D runway approach visualization"
+      :aria-label="t('a11y.canvasLabel')"
       aria-describedby="canvas-description"
     ></canvas>
     <p id="canvas-description" class="sr-only">
-      An interactive WebGL-rendered 3D scene depicting an aircraft on a runway approach. The
-      visualization shows the runway, approach lighting system, and the aircraft's position relative
-      to the runway during a simulated instrument approach. Use the controls in the header above to
-      configure the approach minimum, runway lighting type, and aircraft speed. Press the spacebar
-      to play or pause the animation.
+      {{ t('a11y.canvasDescription') }}
     </p>
 
     <!-- WebGL Error Message -->
     <div v-if="webGLError" class="webgl-error">
       <div class="error-content">
-        <h3>WebGL Not Supported</h3>
-        <p>This application requires WebGL to display 3D graphics.</p>
-        <p class="suggestions-title">Please try:</p>
+        <h3>{{ t('webgl.title') }}</h3>
+        <p>{{ t('webgl.intro') }}</p>
+        <p class="suggestions-title">{{ t('webgl.tryTitle') }}</p>
         <ul class="suggestions">
-          <li>Using a modern browser (Chrome, Firefox, Safari, Edge)</li>
-          <li>Enabling hardware acceleration in your browser settings</li>
-          <li>Updating your graphics drivers</li>
-          <li>Checking if WebGL is blocked by security software</li>
+          <li>{{ t('webgl.tryModernBrowser') }}</li>
+          <li>{{ t('webgl.tryHardwareAcceleration') }}</li>
+          <li>{{ t('webgl.tryUpdateDrivers') }}</li>
+          <li>{{ t('webgl.trySecuritySoftware') }}</li>
         </ul>
       </div>
     </div>
@@ -96,7 +95,7 @@ watch(
     <!-- Status Overlay -->
     <div v-else class="status-overlay">
       <div class="status-item">
-        <span class="status-label">Altitude:</span>
+        <span class="status-label">{{ t('status.altitude') }}</span>
         <span
           class="status-value"
           :class="{
@@ -106,7 +105,7 @@ watch(
         >
       </div>
       <div class="status-item">
-        <span class="status-label">Distance:</span>
+        <span class="status-label">{{ t('status.distance') }}</span>
         <span class="status-value" :class="{ 'within-visibility': isWithinVisibility }">{{
           formatNauticalMiles(animationStore.currentDistanceNm)
         }}</span>

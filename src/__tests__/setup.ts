@@ -1,4 +1,11 @@
 import { vi } from 'vitest'
+import { config } from '@vue/test-utils'
+import { i18n } from '@/i18n'
+
+// Make the shared i18n instance available to every mounted component so
+// `useI18n()` resolves. The default `en` catalog is bundled eagerly, so tests
+// render real English strings without any async locale loading.
+config.global.plugins = [i18n]
 
 // Mock localStorage
 const localStorageMock = {

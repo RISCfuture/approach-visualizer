@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useEventListener, useTimeoutFn } from '@vueuse/core'
 import Select from 'primevue/select'
 import InputNumber from 'primevue/inputnumber'
@@ -7,9 +8,13 @@ import Button from 'primevue/button'
 import Slider from 'primevue/slider'
 import Popover from 'primevue/popover'
 import Checkbox from 'primevue/checkbox'
+import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
 import { useApproachStore } from '@/stores/approach'
 import { useAnimationStore } from '@/stores/animation'
 import { APPROACH_MINIMA, LIGHTING_TYPES, GLIDESLOPE_ANGLE, FEET_PER_NM } from '@/types/approach'
+import { formatFeet, formatNauticalMiles } from '@/utils/formatting'
+
+const { t } = useI18n({ useScope: 'global' })
 
 const VISIBILITY_OPTIONS = [
   { label: '150 RVR', value: 150, unit: 'RVR' },
@@ -27,6 +32,24 @@ const VISIBILITY_OPTIONS = [
 
 const approachStore = useApproachStore()
 const animationStore = useAnimationStore()
+
+// Localized Select options. Every approach minimum has a `minima.*` key; pure
+// jargon entries (ILS CAT I/II/III) keep their English value in each catalog,
+// while Non-Precision / Circling get real translations. Lighting labels are
+// jargon and stay as-is apart from "None".
+const approachMinimaOptions = computed(() =>
+  APPROACH_MINIMA.map((minimum) => ({
+    id: minimum.id,
+    label: t(`minima.${minimum.id}`),
+  })),
+)
+
+const lightingOptions = computed(() =>
+  LIGHTING_TYPES.map((type) => ({
+    value: type.value,
+    label: type.value === 'None' ? t('lighting.none') : type.label,
+  })),
+)
 
 // Popover refs
 const approachPopover = ref()
@@ -145,9 +168,9 @@ const showAimPoint = computed({
 })
 
 const playButtonLabel = computed(() => {
-  if (!animationStore.isPlaying) return 'Play'
-  if (animationStore.isPaused) return 'Resume'
-  return 'Pause'
+  if (!animationStore.isPlaying) return t('controls.play')
+  if (animationStore.isPaused) return t('controls.resume')
+  return t('controls.pause')
 })
 
 const playButtonIcon = computed(() => {
@@ -197,7 +220,7 @@ const startSlantDistance = computed(() => {
   const startDistanceNm = animationStore.startingDistanceNm
   const startDistanceFt = startDistanceNm * FEET_PER_NM
   const slantNm = Math.sqrt(Math.pow(startAltitude, 2) + Math.pow(startDistanceFt, 2)) / FEET_PER_NM
-  return slantNm.toFixed(1) // Return in NM with 1 decimal
+  return slantNm // NM; formatted for display by the template
 })
 
 const endSlantDistance = computed(() => {
@@ -269,7 +292,7 @@ const visibilityTickMarks = computed(() => {
   // Cloud breakout tick mark
   marks.push({
     position: cloudBreakout,
-    label: 'Breakout',
+    label: t('ticks.breakout'),
     class: 'breakout-tick',
   })
 
@@ -282,7 +305,7 @@ const visibilityTickMarks = computed(() => {
   if (thresholdPosition > cloudBreakout && thresholdPosition <= 100) {
     marks.push({
       position: thresholdPosition,
-      label: 'Runway threshold visible',
+      label: t('ticks.thresholdVisible'),
       class: 'tick-threshold',
     })
   }
@@ -295,7 +318,7 @@ const visibilityTickMarks = computed(() => {
     if (decisionBarPosition > cloudBreakout && decisionBarPosition <= 100) {
       marks.push({
         position: decisionBarPosition,
-        label: 'Decision bar visible: Visual bank reference',
+        label: t('ticks.decisionBar'),
         class: 'tick-decision-bar',
       })
     }
@@ -309,7 +332,7 @@ const visibilityTickMarks = computed(() => {
     if (flashersPosition > cloudBreakout && flashersPosition <= 100) {
       marks.push({
         position: flashersPosition,
-        label: 'Sequenced flashers visible: Visual lateral deviation reference',
+        label: t('ticks.flashers'),
         class: 'tick-flashers',
       })
     }
@@ -322,7 +345,7 @@ const visibilityTickMarks = computed(() => {
   if (papiPosition > cloudBreakout && papiPosition <= 100) {
     marks.push({
       position: papiPosition,
-      label: 'PAPI visible: Visual vertical deviation reference',
+      label: t('ticks.papi'),
       class: 'tick-papi',
     })
   }
@@ -345,7 +368,7 @@ const visibilityTickMarks = computed(() => {
     if (alertHeightPosition >= 0 && alertHeightPosition <= 100) {
       marks.push({
         position: alertHeightPosition,
-        label: 'Alert Height (100 ft)',
+        label: t('ticks.alertHeight', { unit: t('units.ft') }),
         class: 'tick-alert-height',
       })
     }
@@ -385,17 +408,20 @@ useTimeoutFn(() => {
 <template>
   <header class="app-header">
     <div class="header-content">
-      <h1 class="app-title">Approach Visualizer</h1>
+      <div class="header-toolbar">
+        <LocaleSwitcher />
+      </div>
+      <h1 class="app-title">{{ t('app.title') }}</h1>
       <div class="form-controls">
         <div class="form-field-group">
           <div class="form-field form-field-select">
-            <label for="approach-minimum">Approach Minimum</label>
+            <label for="approach-minimum">{{ t('controls.approachMinimum') }}</label>
             <Select
               v-model="selectedMinimum"
-              :options="APPROACH_MINIMA"
+              :options="approachMinimaOptions"
               option-label="label"
               option-value="id"
-              placeholder="Select minimum"
+              :placeholder="t('controls.selectMinimum')"
               input-id="approach-minimum"
             />
           </div>
@@ -404,20 +430,20 @@ useTimeoutFn(() => {
             severity="secondary"
             rounded
             @click="(event: Event) => approachPopover.toggle(event)"
-            aria-label="Configure approach minimum"
+            :aria-label="t('controls.configureApproachMinimum')"
             class="config-button"
           />
         </div>
 
         <div class="form-field-group">
           <div class="form-field form-field-select">
-            <label for="lighting">Runway Lighting</label>
+            <label for="lighting">{{ t('controls.runwayLighting') }}</label>
             <Select
               v-model="lightingType"
-              :options="LIGHTING_TYPES"
+              :options="lightingOptions"
               option-label="label"
               option-value="value"
-              placeholder="Select lighting"
+              :placeholder="t('controls.selectLighting')"
               input-id="lighting"
             />
           </div>
@@ -426,13 +452,13 @@ useTimeoutFn(() => {
             severity="secondary"
             rounded
             @click="(event: Event) => lightingPopover.toggle(event)"
-            aria-label="Configure runway lighting"
+            :aria-label="t('controls.configureRunwayLighting')"
             class="config-button"
           />
         </div>
 
         <div class="form-field form-field-number">
-          <label for="speed">Speed (kt)</label>
+          <label for="speed">{{ t('controls.speed', { unit: t('units.kt') }) }}</label>
           <InputNumber v-model="approachSpeed" input-id="speed" :min="50" :max="200" :step="5" />
         </div>
 
@@ -444,7 +470,7 @@ useTimeoutFn(() => {
             :severity="animationStore.isPlaying && !animationStore.isPaused ? 'warning' : 'primary'"
           />
           <Button
-            label="Reset"
+            :label="t('controls.reset')"
             icon="pi pi-refresh"
             @click="handleReset"
             severity="secondary"
@@ -455,8 +481,8 @@ useTimeoutFn(() => {
 
       <div class="slider-section">
         <div class="slider-labels">
-          <span>{{ startSlantDistance }} NM</span>
-          <span>{{ endSlantDistance.toLocaleString() }} ft</span>
+          <span>{{ formatNauticalMiles(startSlantDistance) }}</span>
+          <span>{{ formatFeet(endSlantDistance) }}</span>
         </div>
         <div class="slider-container">
           <Slider
@@ -486,27 +512,27 @@ useTimeoutFn(() => {
   <!-- Approach Minimum Configuration Popover -->
   <Popover ref="approachPopover">
     <div class="popover-content">
-      <h3 class="popover-title">Approach Minimum Configuration</h3>
+      <h3 class="popover-title">{{ t('popover.approachTitle') }}</h3>
 
       <div class="popover-field">
-        <label for="popover-ceiling">Ceiling (ft)</label>
+        <label for="popover-ceiling">{{ t('popover.ceiling', { unit: t('units.ft') }) }}</label>
         <InputNumber
           v-model="customCeiling"
           input-id="popover-ceiling"
           :min="0"
           :max="1000"
           :step="50"
-          placeholder="Preset value"
+          :placeholder="t('popover.presetValue')"
         />
       </div>
 
       <div class="popover-field">
-        <label for="popover-visibility">Visibility</label>
+        <label for="popover-visibility">{{ t('popover.visibility') }}</label>
         <Select
           v-model="customVisibility"
           :options="VISIBILITY_OPTIONS"
           option-label="label"
-          placeholder="Preset value"
+          :placeholder="t('popover.presetValue')"
           input-id="popover-visibility"
         />
       </div>
@@ -516,55 +542,55 @@ useTimeoutFn(() => {
   <!-- Runway Lighting Configuration Popover -->
   <Popover ref="lightingPopover">
     <div class="popover-content">
-      <h3 class="popover-title">Runway Lighting Configuration</h3>
+      <h3 class="popover-title">{{ t('popover.lightingTitle') }}</h3>
 
       <div class="popover-section">
-        <h4 class="popover-subtitle">Lighting Components</h4>
+        <h4 class="popover-subtitle">{{ t('popover.lightingComponents') }}</h4>
 
         <div class="checkbox-field">
           <Checkbox v-model="showREIL" input-id="check-reil" binary :disabled="reilDisabled" />
           <label for="check-reil" :class="{ 'disabled-label': reilDisabled }">
-            REIL (Runway End Identifier Lights)
+            {{ t('popover.reil') }}
           </label>
         </div>
 
         <div class="checkbox-field">
           <Checkbox v-model="showRCLS" input-id="check-rcls" binary />
-          <label for="check-rcls">RCLS (Runway Centerline Lighting System)</label>
+          <label for="check-rcls">{{ t('popover.rcls') }}</label>
         </div>
 
         <div class="checkbox-field">
           <Checkbox v-model="showEdgeLights" input-id="check-edge" binary />
-          <label for="check-edge">Edge Lights</label>
+          <label for="check-edge">{{ t('popover.edgeLights') }}</label>
         </div>
 
         <div class="checkbox-field">
           <Checkbox v-model="showPAPI" input-id="check-papi" binary />
-          <label for="check-papi">PAPI (Precision Approach Path Indicator)</label>
+          <label for="check-papi">{{ t('popover.papi') }}</label>
         </div>
       </div>
 
       <div class="popover-section">
-        <h4 class="popover-subtitle">Runway Markings</h4>
+        <h4 class="popover-subtitle">{{ t('popover.runwayMarkings') }}</h4>
 
         <div class="checkbox-field">
           <Checkbox v-model="showThresholdMarkings" input-id="check-threshold" binary />
-          <label for="check-threshold">Threshold Markings</label>
+          <label for="check-threshold">{{ t('popover.thresholdMarkings') }}</label>
         </div>
 
         <div class="checkbox-field">
           <Checkbox v-model="showTouchdownZone" input-id="check-tdz" binary />
-          <label for="check-tdz">Touchdown Zone Markings</label>
+          <label for="check-tdz">{{ t('popover.touchdownZoneMarkings') }}</label>
         </div>
 
         <div class="checkbox-field">
           <Checkbox v-model="showSideStripes" input-id="check-stripes" binary />
-          <label for="check-stripes">Side Stripes</label>
+          <label for="check-stripes">{{ t('popover.sideStripes') }}</label>
         </div>
 
         <div class="checkbox-field">
           <Checkbox v-model="showAimPoint" input-id="check-aim" binary />
-          <label for="check-aim">Aim Point Markings</label>
+          <label for="check-aim">{{ t('popover.aimPointMarkings') }}</label>
         </div>
       </div>
     </div>
@@ -581,18 +607,36 @@ useTimeoutFn(() => {
 }
 
 .header-content {
+  position: relative;
   max-width: 1600px;
   padding: 0 1rem;
   margin: 0 auto;
 }
 
+.header-toolbar {
+  position: absolute;
+  top: 0;
+  right: 1rem;
+  z-index: 1;
+}
+
 .app-title {
+  /* Symmetric inline padding keeps the centered title clear of the
+     absolutely-positioned locale switcher instead of running under it. */
+  padding: 0 2.75rem;
   margin: 0 0 1.25rem;
   font-size: 1.875rem;
   font-weight: 600;
   text-align: center;
   letter-spacing: 0.5px;
+  overflow-wrap: break-word;
   user-select: none;
+}
+
+@media (width <= 480px) {
+  .app-title {
+    font-size: 1.4rem;
+  }
 }
 
 /* Form controls layout */
@@ -626,6 +670,17 @@ useTimeoutFn(() => {
   letter-spacing: 0.5px;
   user-select: none;
   opacity: 0.95;
+}
+
+/* Long compound labels (notably de-DE) must wrap and hyphenate instead of
+   overflowing their fixed-width controls. */
+.form-field label,
+.checkbox-field label,
+.popover-title,
+.popover-subtitle,
+.popover-field label {
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 /* Control field widths with deep selectors */

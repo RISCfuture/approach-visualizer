@@ -1,0 +1,78 @@
+{
+  "app": {
+    "title": "Approach Visualizer"
+  },
+  "a11y": {
+    "skipToMain": "Aller au contenu principal",
+    "canvasLabel": "Visualisation 3D interactive d'une approche de piste",
+    "canvasDescription": "Une scène 3D interactive rendue en WebGL représentant un aéronef en approche d'une piste. La visualisation montre la piste, le système de balisage lumineux d'approche et la position de l'aéronef par rapport à la piste au cours d'une approche aux instruments simulée. Utilisez les commandes dans l'en-tête ci-dessus pour configurer le minimum d'approche, le type de balisage de piste et la vitesse de l'aéronef. Appuyez sur la barre d'espace pour lancer ou mettre en pause l'animation.",
+    "localeSwitcher": "Sélectionner la langue"
+  },
+  "controls": {
+    "approachMinimum": "Minimum d'approche",
+    "selectMinimum": "Sélectionner un minimum",
+    "configureApproachMinimum": "Configurer le minimum d'approche",
+    "runwayLighting": "Balisage de piste",
+    "selectLighting": "Sélectionner un balisage",
+    "configureRunwayLighting": "Configurer le balisage de piste",
+    "speed": "Vitesse ({unit})",
+    "play": "Lecture",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "reset": "Réinitialiser"
+  },
+  "minima": {
+    "cat-i": "ILS CAT I",
+    "cat-ii": "ILS CAT II",
+    "cat-iiia": "ILS CAT IIIa",
+    "cat-iiib": "ILS CAT IIIb",
+    "non-precision": "Approche classique",
+    "circling": "MVL (manœuvre à vue libre)"
+  },
+  "lighting": {
+    "none": "Aucun"
+  },
+  "units": {
+    "ft": "ft",
+    "kt": "kt",
+    "nauticalMiles": "{value} NM"
+  },
+  "popover": {
+    "approachTitle": "Configuration du minimum d'approche",
+    "ceiling": "Plafond ({unit})",
+    "presetValue": "Valeur prédéfinie",
+    "visibility": "Visibilité",
+    "lightingTitle": "Configuration du balisage de piste",
+    "lightingComponents": "Composants du balisage",
+    "runwayMarkings": "Marquage de piste",
+    "reil": "REIL (feux d'identification d'extrémité de piste)",
+    "rcls": "RCLS (balisage d'axe de piste)",
+    "edgeLights": "Feux de bord de piste",
+    "papi": "PAPI (indicateur de plan d'approche de précision)",
+    "thresholdMarkings": "Marquage du seuil",
+    "touchdownZoneMarkings": "Marquage de la zone de toucher des roues",
+    "sideStripes": "Bandes latérales",
+    "aimPointMarkings": "Marquage du point de visée"
+  },
+  "ticks": {
+    "breakout": "Sortie des nuages",
+    "thresholdVisible": "Seuil de piste visible",
+    "decisionBar": "Barre de décision visible : référence visuelle d'inclinaison",
+    "flashers": "Feux à éclats séquentiels visibles : référence visuelle d'écart latéral",
+    "papi": "PAPI visible : référence visuelle d'écart vertical",
+    "alertHeight": "Hauteur d'alerte (100 {unit})"
+  },
+  "status": {
+    "altitude": "Altitude :",
+    "distance": "Distance :"
+  },
+  "webgl": {
+    "title": "WebGL non pris en charge",
+    "intro": "Cette application nécessite WebGL pour afficher des graphismes 3D.",
+    "tryTitle": "Veuillez essayer :",
+    "tryModernBrowser": "Utiliser un navigateur moderne (Chrome, Firefox, Safari, Edge)",
+    "tryHardwareAcceleration": "Activer l'accélération matérielle dans les paramètres de votre navigateur",
+    "tryUpdateDrivers": "Mettre à jour vos pilotes graphiques",
+    "trySecuritySoftware": "Vérifier si WebGL est bloqué par un logiciel de sécurité"
+  }
+}

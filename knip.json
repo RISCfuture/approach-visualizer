@@ -15,19 +15,6 @@
     "config": [],
     "entry": ["vitest.config.ts", "src/__tests__/setup.ts"]
   },
-  "ignoreDependencies": [
-    "@vue/compiler-dom",
-    "@vue/test-utils",
-    "eslint",
-    "jiti",
-    "jsdom",
-    "npm-run-all2",
-    "oxlint",
-    "stylelint",
-    "terser",
-    "vue-eslint-parser",
-    "vue-tsc"
-  ],
   "ignoreExportsUsedInFile": true,
   "rules": {
     "exports": "warn",

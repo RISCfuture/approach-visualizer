@@ -1,0 +1,78 @@
+{
+  "app": {
+    "title": "Approach Visualizer"
+  },
+  "a11y": {
+    "skipToMain": "Zum Hauptinhalt springen",
+    "canvasLabel": "Interaktive 3D-Visualisierung des Landebahnanflugs",
+    "canvasDescription": "Eine interaktive, per WebGL gerenderte 3D-Szene, die ein Luftfahrzeug im Anflug auf eine Landebahn darstellt. Die Visualisierung zeigt die Landebahn, das Anflugbefeuerungssystem und die Position des Luftfahrzeugs relativ zur Landebahn während eines simulierten Instrumentenanflugs. Konfigurieren Sie mit den Bedienelementen in der Kopfzeile oben das Anflugminimum, die Art der Landebahnbefeuerung und die Geschwindigkeit des Luftfahrzeugs. Drücken Sie die Leertaste, um die Animation abzuspielen oder zu pausieren.",
+    "localeSwitcher": "Sprache wählen"
+  },
+  "controls": {
+    "approachMinimum": "Anflugminimum",
+    "selectMinimum": "Minimum wählen",
+    "configureApproachMinimum": "Anflugminimum konfigurieren",
+    "runwayLighting": "Landebahnbefeuerung",
+    "selectLighting": "Befeuerung wählen",
+    "configureRunwayLighting": "Landebahnbefeuerung konfigurieren",
+    "speed": "Geschwindigkeit ({unit})",
+    "play": "Wiedergabe",
+    "pause": "Pause",
+    "resume": "Fortsetzen",
+    "reset": "Zurücksetzen"
+  },
+  "minima": {
+    "cat-i": "ILS CAT I",
+    "cat-ii": "ILS CAT II",
+    "cat-iiia": "ILS CAT IIIa",
+    "cat-iiib": "ILS CAT IIIb",
+    "non-precision": "Nichtpräzisionsanflug",
+    "circling": "Circling"
+  },
+  "lighting": {
+    "none": "Keine"
+  },
+  "units": {
+    "ft": "ft",
+    "kt": "kt",
+    "nauticalMiles": "{value} NM"
+  },
+  "popover": {
+    "approachTitle": "Konfiguration des Anflugminimums",
+    "ceiling": "Wolkenuntergrenze ({unit})",
+    "presetValue": "Voreingestellter Wert",
+    "visibility": "Sicht",
+    "lightingTitle": "Konfiguration der Landebahnbefeuerung",
+    "lightingComponents": "Befeuerungskomponenten",
+    "runwayMarkings": "Landebahnmarkierungen",
+    "reil": "REIL (Runway End Identifier Lights)",
+    "rcls": "RCLS (Runway Centerline Lighting System)",
+    "edgeLights": "Randbefeuerung",
+    "papi": "PAPI (Precision Approach Path Indicator)",
+    "thresholdMarkings": "Schwellenmarkierungen",
+    "touchdownZoneMarkings": "Aufsetzzonenmarkierungen",
+    "sideStripes": "Seitenstreifen",
+    "aimPointMarkings": "Zielpunktmarkierungen"
+  },
+  "ticks": {
+    "breakout": "Breakout",
+    "thresholdVisible": "Landebahnschwelle sichtbar",
+    "decisionBar": "Entscheidungsbalken sichtbar: visuelle Querneigungsreferenz",
+    "flashers": "Blitzfeuerkette sichtbar: visuelle Referenz für seitliche Abweichung",
+    "papi": "PAPI sichtbar: visuelle Referenz für vertikale Abweichung",
+    "alertHeight": "Alert Height (100 {unit})"
+  },
+  "status": {
+    "altitude": "Höhe:",
+    "distance": "Entfernung:"
+  },
+  "webgl": {
+    "title": "WebGL nicht unterstützt",
+    "intro": "Diese Anwendung benötigt WebGL zur Darstellung von 3D-Grafiken.",
+    "tryTitle": "Bitte versuchen Sie Folgendes:",
+    "tryModernBrowser": "Verwenden Sie einen aktuellen Browser (Chrome, Firefox, Safari, Edge)",
+    "tryHardwareAcceleration": "Aktivieren Sie die Hardwarebeschleunigung in den Browsereinstellungen",
+    "tryUpdateDrivers": "Aktualisieren Sie Ihre Grafiktreiber",
+    "trySecuritySoftware": "Prüfen Sie, ob WebGL durch Sicherheitssoftware blockiert wird"
+  }
+}
