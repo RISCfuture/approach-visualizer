@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import babylonjsCjsInterop from './build/vite-plugin-babylonjs-cjs-interop'
 import vue from '@vitejs/plugin-vue'
+import vueI18n from '@intlify/unplugin-vue-i18n/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import legacy from '@vitejs/plugin-legacy'
 import csp from 'vite-plugin-csp-guard'
@@ -21,6 +22,11 @@ export default defineConfig({
   plugins: [
     babylonjsCjsInterop(),
     vue(),
+    // Compile locale JSON to render functions at build time so vue-i18n needs
+    // no runtime message compiler — keeps the strict CSP (no 'unsafe-eval').
+    vueI18n({
+      include: [fileURLToPath(new URL('./src/i18n/locales/**', import.meta.url))],
+    }),
     process.env.NODE_ENV == 'development' ? vueDevTools({ launchEditor: 'rubymine' }) : false,
     legacy({
       targets: ['chrome >= 79', 'edge >= 79', 'safari >= 13', 'firefox >= 67'],

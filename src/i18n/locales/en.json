@@ -1,0 +1,78 @@
+{
+  "app": {
+    "title": "Approach Visualizer"
+  },
+  "a11y": {
+    "skipToMain": "Skip to main content",
+    "canvasLabel": "Interactive 3D runway approach visualization",
+    "canvasDescription": "An interactive WebGL-rendered 3D scene depicting an aircraft on a runway approach. The visualization shows the runway, approach lighting system, and the aircraft's position relative to the runway during a simulated instrument approach. Use the controls in the header above to configure the approach minimum, runway lighting type, and aircraft speed. Press the spacebar to play or pause the animation.",
+    "localeSwitcher": "Select language"
+  },
+  "controls": {
+    "approachMinimum": "Approach Minimum",
+    "selectMinimum": "Select minimum",
+    "configureApproachMinimum": "Configure approach minimum",
+    "runwayLighting": "Runway Lighting",
+    "selectLighting": "Select lighting",
+    "configureRunwayLighting": "Configure runway lighting",
+    "speed": "Speed ({unit})",
+    "play": "Play",
+    "pause": "Pause",
+    "resume": "Resume",
+    "reset": "Reset"
+  },
+  "minima": {
+    "cat-i": "ILS CAT I",
+    "cat-ii": "ILS CAT II",
+    "cat-iiia": "ILS CAT IIIa",
+    "cat-iiib": "ILS CAT IIIb",
+    "non-precision": "Non-Precision",
+    "circling": "Circling"
+  },
+  "lighting": {
+    "none": "None"
+  },
+  "units": {
+    "ft": "ft",
+    "kt": "kt",
+    "nauticalMiles": "{value} NM"
+  },
+  "popover": {
+    "approachTitle": "Approach Minimum Configuration",
+    "ceiling": "Ceiling ({unit})",
+    "presetValue": "Preset value",
+    "visibility": "Visibility",
+    "lightingTitle": "Runway Lighting Configuration",
+    "lightingComponents": "Lighting Components",
+    "runwayMarkings": "Runway Markings",
+    "reil": "REIL (Runway End Identifier Lights)",
+    "rcls": "RCLS (Runway Centerline Lighting System)",
+    "edgeLights": "Edge Lights",
+    "papi": "PAPI (Precision Approach Path Indicator)",
+    "thresholdMarkings": "Threshold Markings",
+    "touchdownZoneMarkings": "Touchdown Zone Markings",
+    "sideStripes": "Side Stripes",
+    "aimPointMarkings": "Aim Point Markings"
+  },
+  "ticks": {
+    "breakout": "Breakout",
+    "thresholdVisible": "Runway threshold visible",
+    "decisionBar": "Decision bar visible: Visual bank reference",
+    "flashers": "Sequenced flashers visible: Visual lateral deviation reference",
+    "papi": "PAPI visible: Visual vertical deviation reference",
+    "alertHeight": "Alert Height (100 {unit})"
+  },
+  "status": {
+    "altitude": "Altitude:",
+    "distance": "Distance:"
+  },
+  "webgl": {
+    "title": "WebGL Not Supported",
+    "intro": "This application requires WebGL to display 3D graphics.",
+    "tryTitle": "Please try:",
+    "tryModernBrowser": "Using a modern browser (Chrome, Firefox, Safari, Edge)",
+    "tryHardwareAcceleration": "Enabling hardware acceleration in your browser settings",
+    "tryUpdateDrivers": "Updating your graphics drivers",
+    "trySecuritySoftware": "Checking if WebGL is blocked by security software"
+  }
+}

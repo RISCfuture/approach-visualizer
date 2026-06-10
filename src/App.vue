@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppHeader from '@/components/AppHeader.vue'
 import RunwayViewer from '@/components/RunwayViewer.vue'
 import { useDarkMode } from '@/composables/useDarkMode'
 
+const { t } = useI18n({ useScope: 'global' })
 const { initDarkMode } = useDarkMode()
 
 onMounted(() => {
@@ -12,7 +14,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <a href="#main-content" class="skip-link">{{ t('a11y.skipToMain') }}</a>
   <div class="app">
     <AppHeader />
     <main id="main-content" class="main-content" tabindex="-1">
