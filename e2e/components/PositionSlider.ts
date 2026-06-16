@@ -7,8 +7,8 @@ export class PositionSlider {
 
   constructor(page: Page) {
     this.page = page
-    this.slider = page.locator('.p-slider')
-    this.breakoutTick = page.locator('.breakout-tick')
+    this.slider = page.getByTestId('position-slider')
+    this.breakoutTick = page.getByTestId('breakout-tick')
   }
 
   async getSliderBoundingBox() {
