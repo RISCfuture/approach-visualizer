@@ -8,11 +8,11 @@ export class StatusOverlay {
   readonly distanceValue: Locator
 
   constructor(page: Page) {
-    this.container = page.locator('.status-overlay')
-    this.altitudeLabel = this.container.locator('.status-label:has-text("Altitude:")')
-    this.distanceLabel = this.container.locator('.status-label:has-text("Distance:")')
-    this.altitudeValue = this.container.locator('.status-value').first()
-    this.distanceValue = this.container.locator('.status-value').last()
+    this.container = page.getByTestId('status-overlay')
+    this.altitudeLabel = this.container.getByTestId('status-altitude-label')
+    this.distanceLabel = this.container.getByTestId('status-distance-label')
+    this.altitudeValue = this.container.getByTestId('status-altitude-value')
+    this.distanceValue = this.container.getByTestId('status-distance-value')
   }
 
   async getAltitudeText(): Promise<string | null> {

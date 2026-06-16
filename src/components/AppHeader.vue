@@ -488,6 +488,7 @@ useTimeoutFn(() => {
           <Slider
             v-model="positionSlider"
             class="full-width-slider"
+            data-testid="position-slider"
             :min="0"
             :max="100"
             :step="0.1"
@@ -499,6 +500,7 @@ useTimeoutFn(() => {
             :key="`tick-${index}`"
             class="visibility-tick"
             :class="mark.class"
+            :data-testid="mark.class"
             :style="{ left: `${mark.position}%` }"
             v-tooltip.top="mark.label"
           >

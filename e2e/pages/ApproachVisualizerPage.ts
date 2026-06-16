@@ -9,6 +9,7 @@ export class ApproachVisualizerPage {
   readonly canvas: Locator
   readonly formFields: Locator
   readonly controls: Locator
+  readonly approachMinimumLabel: Locator
   readonly statusOverlay: StatusOverlay
   readonly animationControls: AnimationControls
   readonly positionSlider: PositionSlider
@@ -19,6 +20,7 @@ export class ApproachVisualizerPage {
     this.canvas = page.locator('canvas.babylon-canvas')
     this.formFields = page.locator('.form-field')
     this.controls = page.locator('button, input, select')
+    this.approachMinimumLabel = page.locator('label[for="approach-minimum"]')
     this.statusOverlay = new StatusOverlay(page)
     this.animationControls = new AnimationControls(page)
     this.positionSlider = new PositionSlider(page)

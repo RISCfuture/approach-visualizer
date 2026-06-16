@@ -93,11 +93,14 @@ watch(
     </div>
 
     <!-- Status Overlay -->
-    <div v-else class="status-overlay">
+    <div v-else class="status-overlay" data-testid="status-overlay">
       <div class="status-item">
-        <span class="status-label">{{ t('status.altitude') }}</span>
+        <span class="status-label" data-testid="status-altitude-label">{{
+          t('status.altitude')
+        }}</span>
         <span
           class="status-value"
+          data-testid="status-altitude-value"
           :class="{
             'below-ceiling': animationStore.currentAltitude <= approachStore.effectiveCeiling,
           }"
@@ -105,10 +108,15 @@ watch(
         >
       </div>
       <div class="status-item">
-        <span class="status-label">{{ t('status.distance') }}</span>
-        <span class="status-value" :class="{ 'within-visibility': isWithinVisibility }">{{
-          formatNauticalMiles(animationStore.currentDistanceNm)
+        <span class="status-label" data-testid="status-distance-label">{{
+          t('status.distance')
         }}</span>
+        <span
+          class="status-value"
+          data-testid="status-distance-value"
+          :class="{ 'within-visibility': isWithinVisibility }"
+          >{{ formatNauticalMiles(animationStore.currentDistanceNm) }}</span
+        >
       </div>
     </div>
   </div>
