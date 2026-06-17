@@ -415,7 +415,9 @@ useTimeoutFn(() => {
       <div class="form-controls">
         <div class="form-field-group">
           <div class="form-field form-field-select">
-            <label for="approach-minimum">{{ t('controls.approachMinimum') }}</label>
+            <label for="approach-minimum" data-testid="approach-minimum-label">{{
+              t('controls.approachMinimum')
+            }}</label>
             <Select
               v-model="selectedMinimum"
               :options="approachMinimaOptions"
@@ -488,6 +490,7 @@ useTimeoutFn(() => {
           <Slider
             v-model="positionSlider"
             class="full-width-slider"
+            data-testid="position-slider"
             :min="0"
             :max="100"
             :step="0.1"
@@ -499,6 +502,7 @@ useTimeoutFn(() => {
             :key="`tick-${index}`"
             class="visibility-tick"
             :class="mark.class"
+            :data-testid="mark.class === 'breakout-tick' ? 'breakout-tick' : undefined"
             :style="{ left: `${mark.position}%` }"
             v-tooltip.top="mark.label"
           >
