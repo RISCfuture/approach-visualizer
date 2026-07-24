@@ -8,6 +8,7 @@ import { createSentryPiniaPlugin } from '@sentry/vue'
 
 import { i18n, initLocale } from './i18n'
 import { primeVueLocale } from './i18n/primevue'
+import { recoverFromPreloadErrors } from './utils/preloadRecovery'
 
 import 'normalize.css'
 import 'primeflex/primeflex.css'
@@ -15,6 +16,8 @@ import 'primeicons/primeicons.css'
 import './styles/global.css'
 
 import App from './App.vue'
+
+recoverFromPreloadErrors()
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 const app = createApp(App)
