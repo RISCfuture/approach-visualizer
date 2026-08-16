@@ -11,14 +11,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // The CSP plugin should only run during `vite build` (production bundling). During
 // `vite dev` it slows the server noticeably, and during vitest it isn't needed at
-// all (and would run over every transformed file). Detect the build command via the
-// npm script lifecycle rather than the config callback form, because the callback
-// form breaks vitest's `mergeConfig` (it can't merge a config returned by a
-// function). `npm_lifecycle_event` is set to `build-only` by the `yarn build` script.
+// all (and would run over every transformed file). Detect the build via the npm
+// script lifecycle rather than Vite's `command`, because `vitest.config.ts` calls
+// this config function itself and would otherwise pull the plugin into test runs.
+// `npm_lifecycle_event` is set to `build-only` by the `build` script.
 const isBuild = process.env.npm_lifecycle_event === 'build-only' || process.env.VITE_CSP === '1'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     babylonjsCjsInterop(),
     vue(),
@@ -27,7 +27,7 @@ export default defineConfig({
     vueI18n({
       include: [fileURLToPath(new URL('./src/i18n/locales/**', import.meta.url))],
     }),
-    process.env.NODE_ENV == 'development' ? vueDevTools({ launchEditor: 'rubymine' }) : false,
+    command === 'serve' && vueDevTools({ launchEditor: process.env.VITE_LAUNCH_EDITOR }),
     legacy({
       targets: ['chrome >= 79', 'edge >= 79', 'safari >= 13', 'firefox >= 67'],
       modernPolyfills: ['es.object.has-own'],
@@ -35,11 +35,13 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: false,
-      injectRegister: 'script',
+      injectRegister: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff,woff2}'],
-        navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api/, /\.map$/],
+        // This site has no client-side router, so an unknown path is a real 404.
+        // vite-plugin-pwa otherwise defaults this to index.html, which makes the
+        // service worker answer every unknown path with the home page.
+        navigateFallback: undefined,
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
@@ -86,7 +88,7 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: true,
+    sourcemap: 'hidden',
   },
-  base: '/approach-visualizer',
-})
+  base: '/approach-visualizer/',
+}))

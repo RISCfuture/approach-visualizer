@@ -1,4 +1,12 @@
 {
-  "extends": "@tsconfig/node22/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
   "include": ["./**/*"]
 }

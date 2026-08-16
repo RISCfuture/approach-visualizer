@@ -16,12 +16,10 @@ const RELOAD_COOLDOWN_MS = 10 * 60 * 1000
  * still heals each time.
  */
 export function recoverFromPreloadErrors(): void {
-  // oxlint-disable-next-line no-use-before-define
   window.addEventListener('vite:preloadError', reloadOnce)
 }
 
 function reloadOnce(event: VitePreloadErrorEvent): void {
-  // oxlint-disable-next-line no-use-before-define
   if (!claimReload()) return
 
   // Suppresses Vite's rethrow: the reload is the recovery, so the rejection isn't worth

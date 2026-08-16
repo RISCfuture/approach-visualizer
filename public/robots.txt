@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tim.codes/approach-visualizer/sitemap.xml
+Sitemap: https://riscfuture.github.io/approach-visualizer/sitemap.xml

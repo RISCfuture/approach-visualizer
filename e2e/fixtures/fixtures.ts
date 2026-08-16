@@ -25,14 +25,13 @@ const disableWebGL = () => {
     return originalGetContext.apply(this, [contextType, ...args] as Parameters<
       typeof originalGetContext
     >) as RenderingContext | null
-  }
+  } as typeof originalGetContext
 
-  if (typeof WebGLRenderingContext !== 'undefined') {
-    ;(window as Window & { WebGLRenderingContext?: undefined }).WebGLRenderingContext = undefined
-  }
-  if (typeof WebGL2RenderingContext !== 'undefined') {
-    ;(window as Window & { WebGL2RenderingContext?: undefined }).WebGL2RenderingContext = undefined
-  }
+  // The constructors double as the feature detection every WebGL library runs,
+  // so they go away along with the contexts.
+  const globals = window as unknown as Record<string, undefined>
+  if (typeof WebGLRenderingContext !== 'undefined') globals.WebGLRenderingContext = undefined
+  if (typeof WebGL2RenderingContext !== 'undefined') globals.WebGL2RenderingContext = undefined
 }
 
 type Options = {

@@ -13,34 +13,34 @@
   "categories": ["education", "navigation", "utilities"],
   "icons": [
     {
-      "src": "/approach-visualizer/favicon-96x96.png",
-      "sizes": "96x96",
+      "src": "/approach-visualizer/icon-192.png",
       "type": "image/png",
+      "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "/approach-visualizer/apple-touch-icon-ipad-retina.png",
-      "sizes": "152x152",
+      "src": "/approach-visualizer/icon-512.png",
       "type": "image/png",
+      "sizes": "512x512",
       "purpose": "any"
+    },
+    {
+      "src": "/approach-visualizer/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/approach-visualizer/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     },
     {
       "src": "/approach-visualizer/apple-touch-icon-iphone-6p.png",
+      "type": "image/png",
       "sizes": "180x180",
-      "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "/approach-visualizer/mstile-270x270.png",
-      "sizes": "270x270",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/approach-visualizer/mstile-310x310.png",
-      "sizes": "310x310",
-      "type": "image/png",
-      "purpose": "any maskable"
     }
   ]
 }

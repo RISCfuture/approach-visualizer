@@ -15,10 +15,13 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",
     "lint:oxlint": "oxlint -c oxlintrc.json src",
-    "lint:eslint": "eslint . --fix",
-    "lint:stylelint": "stylelint \"src/**/*.{css,vue}\"",
+    "lint:eslint": "eslint .",
+    "lint:eslint:fix": "eslint . --fix",
+    "lint:stylelint": "stylelint \"src/**/*.{vue,css,scss,sass}\"",
+    "lint:stylelint:fix": "stylelint \"src/**/*.{vue,css,scss,sass}\" --fix",
     "lint:knip": "knip",
     "lint": "pnpm run lint:eslint && pnpm run lint:stylelint && pnpm run lint:oxlint && pnpm run lint:knip",
+    "lint:fix": "pnpm run lint:eslint:fix && pnpm run lint:stylelint:fix",
     "format": "prettier --write ."
   },
   "dependencies": {

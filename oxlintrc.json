@@ -30,6 +30,7 @@
     "capitalized-comments": "off",
     "func-names": "off",
     "func-style": "off",
+    "no-use-before-define": "off",
     "no-var": "off",
     "vars-on-top": "off",
     "max-params": "off",
