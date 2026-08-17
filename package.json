@@ -22,7 +22,8 @@
     "lint:knip": "knip",
     "lint": "pnpm run lint:eslint && pnpm run lint:stylelint && pnpm run lint:oxlint && pnpm run lint:knip",
     "lint:fix": "pnpm run lint:eslint:fix && pnpm run lint:stylelint:fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
