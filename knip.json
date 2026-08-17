@@ -17,11 +17,11 @@
   },
   "ignoreExportsUsedInFile": true,
   "rules": {
-    "exports": "warn",
-    "dependencies": "warn",
-    "devDependencies": "warn",
-    "binaries": "off",
-    "unlisted": "off",
-    "unresolved": "off"
+    "exports": "error",
+    "dependencies": "error",
+    "devDependencies": "error",
+    "binaries": "error",
+    "unlisted": "error",
+    "unresolved": "error"
   }
 }
