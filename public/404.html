@@ -27,6 +27,38 @@
   </head>
 
   <body>
+    <!-- Cockpit view of a missed approach: a long spell inside the overcast,
+         the decks breaking over open farmland with no runway in it, a beat to
+         take that in, then the view pitching up and climbing back into cloud,
+         where it started. Scenery only, so it is hidden from assistive
+         technology. Each deck carries its own drift and its own stagger as
+         `style` attributes, the one inline styling the CSP allows. -->
+    <div class="scene" aria-hidden="true">
+      <div class="windscreen">
+        <div class="sky"></div>
+
+        <div class="terrain">
+          <svg class="field" viewBox="0 0 400 200" preserveAspectRatio="none" focusable="false">
+            <defs>
+              <linearGradient id="field-wash" x1="0" y1="0" x2="0" y2="1">
+                <stop class="field-stop-far" offset="0" />
+                <stop class="field-stop-near" offset="1" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="200" fill="url(#field-wash)" />
+          </svg>
+          <div class="haze"></div>
+        </div>
+      </div>
+
+      <div class="decks">
+        <div class="fog"></div>
+        <div class="deck deck-high" style="--deck-shift: -52%; --deck-delay: 0s"></div>
+        <div class="deck deck-mid" style="--deck-shift: 34%; --deck-delay: 0.12s"></div>
+        <div class="deck deck-low" style="--deck-shift: 68%; --deck-delay: 0.24s"></div>
+      </div>
+    </div>
+
     <main>
       <h1>
         <span class="code">404</span>
@@ -35,7 +67,9 @@
 
       <p class="lede">There’s no approach charted to this address.</p>
 
-      <p><a class="button" href="/approach-visualizer/">Back to the visualizer</a></p>
+      <p class="actions">
+        <a class="button" href="/approach-visualizer/">Back to the visualizer</a>
+      </p>
     </main>
   </body>
 </html>

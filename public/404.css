@@ -1,15 +1,29 @@
 /* Styles for `404.html`. Vite copies both files out of `public/` verbatim, so
    they share nothing with the app bundle and restate the palette, type scale,
    and breakpoint from `src/styles/`. The app bundles no webfont, so the stack
-   below is the same system sans-serif the app itself renders in. */
+   below is the same system sans-serif the app itself renders in.
+
+   The scene tokens are the visualizer's own scene colors — the Babylon sky,
+   fog, and ground materials in `src/scene/` — expressed as hex. */
 
 :root {
-  --background: #ffffff;
+  --background: #fff;
   --text-color: #1a2547;
   --muted-color: #667088;
   --button-background-color: #e4e7fb;
   --button-background-hover-color: #d3d8f7;
   --focus-color: #667eea;
+  --panel-background: rgb(255 255 255 / 82%);
+  --panel-border-color: rgb(26 37 71 / 12%);
+  --panel-shadow-color: rgb(26 37 71 / 12%);
+  --sky-high-color: #7397c4;
+  --sky-low-color: #b3bfcc;
+  --field-far-color: #6f9a52;
+  --field-near-color: #335926;
+  --haze-color: rgb(255 255 255 / 70%);
+  --cloud-color: #f2f5f8;
+  --cloud-edge-color: #c9d3dd;
+  --overcast-color: #bfc4c8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,6 +34,17 @@
     --button-background-color: #2b3a6b;
     --button-background-hover-color: #364780;
     --focus-color: #667eea;
+    --panel-background: rgb(13 18 38 / 76%);
+    --panel-border-color: rgb(232 234 246 / 16%);
+    --panel-shadow-color: rgb(0 0 0 / 45%);
+    --sky-high-color: #0d0d1f;
+    --sky-low-color: #1c2748;
+    --field-far-color: #16281a;
+    --field-near-color: #080f08;
+    --haze-color: rgb(28 39 72 / 75%);
+    --cloud-color: #2d3859;
+    --cloud-edge-color: #1c2340;
+    --overcast-color: #141d38;
   }
 }
 
@@ -28,6 +53,7 @@
 }
 
 body {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,9 +69,125 @@ body {
   background-color: var(--background);
 }
 
+/* The message leads and the weather follows. The panel, the 404, the lede, and
+   the link ride short animations of their own that owe nothing to the scene
+   clock: the last of them is at rest by 540ms, whatever the sky is doing.
+
+   The scene clock runs 12s and closes on the frame it opened with. The fog
+   sits full over the windscreen until 1.9s and is gone by 3.4s; the decks pull
+   apart between 1.8s and 4s, and what they open onto is bare farmland.
+   Everything then stops for the better part of two seconds — the beat in which
+   there is plainly no runway down there — before the view pitches up at 5.85s.
+   The horizon sinks and recedes until 10.5s while the decks drift back over the
+   windscreen from 8s and the fog thickens behind them from 8.5s, so the last
+   frame is the solid cloud of the first. It rests there.
+
+   Every scene layer sits at that shared first-and-last state without any
+   animation applied, which is what the `prefers-reduced-motion: reduce` block
+   at the foot of the file falls back to. */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.windscreen {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.02) translateY(1.4%);
+  animation: climb-and-level 12s ease-in-out both;
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to bottom, var(--sky-high-color), var(--sky-low-color));
+}
+
+.terrain {
+  position: absolute;
+  inset: 54% -12% -16%;
+  opacity: 0.85;
+  transform: translateY(30%) scaleY(0.72);
+  transform-origin: 50% 0;
+  animation: horizon-approach-and-recede 12s ease-in-out both;
+}
+
+.field {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.field-stop-far {
+  stop-color: var(--field-far-color);
+}
+
+.field-stop-near {
+  stop-color: var(--field-near-color);
+}
+
+.haze {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 26%;
+  background-image: linear-gradient(to bottom, var(--haze-color), transparent);
+}
+
+/* Flat overcast, laid under the three decks: it hides the sky and the field
+   outright, and the decks above it are what gives it shape. Both it and the
+   decks rest opaque and unshifted, the state the scene opens and closes on. */
+.fog {
+  position: absolute;
+  inset: 0;
+  background-color: var(--overcast-color);
+  animation: overcast-clear-and-close 12s ease-out both;
+}
+
+.deck {
+  position: absolute;
+  inset: -25%;
+  filter: blur(14px);
+  animation: deck-break-and-close 12s ease-in-out var(--deck-delay) both;
+}
+
+.deck-high {
+  background-image:
+    radial-gradient(58% 42% at 18% 30%, var(--cloud-color) 0 56%, transparent 100%),
+    radial-gradient(50% 36% at 62% 14%, var(--cloud-color) 0 54%, transparent 100%),
+    radial-gradient(66% 48% at 88% 38%, var(--cloud-edge-color) 0 58%, transparent 100%);
+}
+
+.deck-mid {
+  background-image:
+    radial-gradient(62% 38% at 34% 60%, var(--cloud-edge-color) 0 56%, transparent 100%),
+    radial-gradient(56% 34% at 78% 68%, var(--cloud-color) 0 58%, transparent 100%),
+    radial-gradient(44% 28% at 6% 76%, var(--cloud-color) 0 54%, transparent 100%);
+}
+
+.deck-low {
+  background-image:
+    radial-gradient(88% 42% at 50% 102%, var(--cloud-color) 0 58%, transparent 100%),
+    radial-gradient(50% 28% at 20% 94%, var(--cloud-edge-color) 0 56%, transparent 100%);
+}
+
+/* Above the scene at every z-index, so no layer of weather can cover the
+   message. */
 main {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 800px;
+  padding: 36px 32px;
+  background-color: var(--panel-background);
+  border: 1px solid var(--panel-border-color);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px var(--panel-shadow-color);
+  backdrop-filter: blur(10px);
+  animation: panel-in 0.3s ease-out both;
 }
 
 h1 {
@@ -54,6 +196,7 @@ h1 {
   gap: 10px;
   margin: 0 0 40px;
   font-weight: normal;
+  animation: surface 0.3s ease-out both;
 }
 
 .code {
@@ -69,6 +212,12 @@ h1 {
   margin: 0 0 40px;
   font-size: 24px;
   color: var(--muted-color);
+  animation: surface 0.3s ease-out 0.12s both;
+}
+
+.actions {
+  margin: 0;
+  animation: surface 0.3s ease-out 0.24s both;
 }
 
 .button {
@@ -90,7 +239,117 @@ h1 {
   outline-offset: 3px;
 }
 
+/* Solid cloud for the first 1.8s, then the deck slides off and thins out; it
+   waits clear of the windscreen through the beat over the field and drifts back
+   across it over the last 4s. */
+@keyframes deck-break-and-close {
+  0%,
+  14.9% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  31.7%,
+  66.7% {
+    opacity: 0;
+    transform: translateY(var(--deck-shift)) scale(1.35);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes overcast-clear-and-close {
+  0%,
+  15.8% {
+    opacity: 1;
+  }
+
+  28.3%,
+  70.8% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Rising into the windscreen behind the full overcast, held there through the
+   break-out and the beat, then sinking and shrinking away under the climb. */
+@keyframes horizon-approach-and-recede {
+  0% {
+    opacity: 0.85;
+    transform: translateY(30%) scaleY(0.72);
+  }
+
+  15%,
+  48.75% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+
+  87.5%,
+  100% {
+    opacity: 0.85;
+    transform: translateY(30%) scaleY(0.72);
+  }
+}
+
+/* Settling towards the field while the overcast is still there, dead still for
+   the beat over the bare field, pitching up away from it, then levelling off
+   once the cloud has closed back over. */
+@keyframes climb-and-level {
+  0% {
+    transform: scale(1.02) translateY(1.4%);
+  }
+
+  33.75%,
+  48.75% {
+    transform: scale(1) translateY(0);
+  }
+
+  79.2% {
+    transform: scale(1.06) translateY(-3%);
+  }
+
+  100% {
+    transform: scale(1.02) translateY(1.4%);
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes surface {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (width <= 700px) {
+  main {
+    padding: 28px 22px;
+    border-radius: 22px;
+  }
+
   .code {
     font-size: 48px;
   }
@@ -106,5 +365,27 @@ h1 {
   .button {
     padding: 15px;
     font-size: 24px;
+  }
+
+  .terrain {
+    inset: 60% -12% -16%;
+  }
+}
+
+/* Where the timeline both starts and ends, held still: closed overcast, the
+   field far below it and out of sight, the view level, the message panel and its
+   text at rest. Every rule above already declares that state, so dropping the
+   animations is enough to reach it. Each animated selector is named rather than
+   swept up by a universal rule, so nothing unrelated is caught by it. */
+@media (prefers-reduced-motion: reduce) {
+  .windscreen,
+  .terrain,
+  .deck,
+  .fog,
+  main,
+  h1,
+  .lede,
+  .actions {
+    animation: none;
   }
 }
