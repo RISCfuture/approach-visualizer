@@ -33,6 +33,7 @@
     "no-use-before-define": "off",
     "no-var": "off",
     "vars-on-top": "off",
+    "one-var": "off",
     "max-params": "off",
     "no-plusplus": "off",
     "no-nested-ternary": "off",

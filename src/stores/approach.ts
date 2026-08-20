@@ -45,24 +45,22 @@ export const useApproachStore = defineStore('approach', () => {
     return ['ALSF-II', 'ALSF-I', 'MALSR'].includes(lightingType.value)
   })
 
-  const settings = computed(
-    (): ApproachSettings => ({
-      minimumId: selectedMinimumId.value,
-      customCeiling: effectiveCeiling.value,
-      customVisibility: effectiveVisibility.value,
-      visibilityUnit: visibilityUnit.value,
-      lightingType: lightingType.value,
-      approachSpeed: approachSpeed.value,
-      showREIL: showREIL.value,
-      showRCLS: showRCLS.value,
-      showEdgeLights: showEdgeLights.value,
-      showPAPI: showPAPI.value,
-      showThresholdMarkings: showThresholdMarkings.value,
-      showTouchdownZone: showTouchdownZone.value,
-      showSideStripes: showSideStripes.value,
-      showAimPoint: showAimPoint.value,
-    }),
-  )
+  const settings = computed((): ApproachSettings => ({
+    minimumId: selectedMinimumId.value,
+    customCeiling: effectiveCeiling.value,
+    customVisibility: effectiveVisibility.value,
+    visibilityUnit: visibilityUnit.value,
+    lightingType: lightingType.value,
+    approachSpeed: approachSpeed.value,
+    showREIL: showREIL.value,
+    showRCLS: showRCLS.value,
+    showEdgeLights: showEdgeLights.value,
+    showPAPI: showPAPI.value,
+    showThresholdMarkings: showThresholdMarkings.value,
+    showTouchdownZone: showTouchdownZone.value,
+    showSideStripes: showSideStripes.value,
+    showAimPoint: showAimPoint.value,
+  }))
 
   function selectMinimum(minimumId: string) {
     selectedMinimumId.value = minimumId
