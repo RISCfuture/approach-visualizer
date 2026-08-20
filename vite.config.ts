@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
-import babylonjsCjsInterop from './build/vite-plugin-babylonjs-cjs-interop'
+import babylonjsCjsInterop from './build/vite-plugin-babylonjs-cjs-interop.ts'
 import vue from '@vitejs/plugin-vue'
 import vueI18n from '@intlify/unplugin-vue-i18n/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'

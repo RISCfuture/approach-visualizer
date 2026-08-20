@@ -97,15 +97,13 @@ export const useAnimationStore = defineStore('animation', () => {
     { immediate: true },
   )
 
-  const state = computed(
-    (): AnimationState => ({
-      isPlaying: isPlaying.value,
-      currentDistance: currentDistanceNm.value,
-      currentAltitude: currentAltitude.value,
-      hasBrokenOut: hasBrokenOut.value,
-      progress: progress.value,
-    }),
-  )
+  const state = computed((): AnimationState => ({
+    isPlaying: isPlaying.value,
+    currentDistance: currentDistanceNm.value,
+    currentAltitude: currentAltitude.value,
+    hasBrokenOut: hasBrokenOut.value,
+    progress: progress.value,
+  }))
 
   function stop() {
     isPlaying.value = false
