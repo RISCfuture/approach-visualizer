@@ -74,6 +74,7 @@ app.use(pinia)
 app.use(i18n)
 
 app.use(PrimeVue, {
+  license: import.meta.env.VITE_PRIMEUI_LICENSE,
   theme: {
     preset: Aura,
   },

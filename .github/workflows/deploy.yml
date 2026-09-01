@@ -47,6 +47,7 @@ jobs:
       - name: Build
         run: pnpm run build
         env:
+          VITE_PRIMEUI_LICENSE: ${{ secrets.PRIMEUI_LICENSE }}
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           VITE_SENTRY_RELEASE: ${{ github.sha }}
       # Sourcemaps must reach Sentry BEFORE they are deleted. Do not reorder.
