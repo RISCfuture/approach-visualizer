@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@/scene/babylon'
 import { ApproachLightingSystem, type LightingSystemConfig } from '../ApproachLightingSystem'
 import { feetToMeters } from '@/types/approach'
 

@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@/scene/babylon'
 import { feetToMeters, RUNWAY_LENGTH_FT, TOUCHDOWN_ZONE_DISTANCE_FT } from '@/types/approach'
 
 // Camera utilities

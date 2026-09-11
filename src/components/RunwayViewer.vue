@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { SceneManager } from '@/scene/SceneManager'
+import type { SceneManager } from '@/scene/SceneManager'
 import { useApproachStore } from '@/stores/approach'
 import { useAnimationStore } from '@/stores/animation'
 import { formatAltitude, formatNauticalMiles } from '@/utils/formatting'
@@ -28,12 +28,16 @@ const isWithinVisibility = computed(() => {
   return animationStore.currentDistanceNm <= visibilityInNm
 })
 
-onMounted(() => {
+// BabylonJS is the bulk of the app's JavaScript and nothing is drawn until the
+// canvas exists, so the engine is fetched as its own chunk and the surrounding
+// PrimeVue chrome paints without waiting for it.
+onMounted(async () => {
   if (!canvas.value) return
 
   let manager: SceneManager
   try {
-    manager = new SceneManager(canvas.value)
+    const scene = await import('@/scene/SceneManager')
+    manager = new scene.SceneManager(canvas.value)
   } catch (error) {
     console.error('Failed to initialize 3D scene:', error)
     webGLError.value = 'WebGL is not supported in your browser'

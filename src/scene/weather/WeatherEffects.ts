@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@/scene/babylon'
 import { statuteMilesToMeters, rvrToStatuteMiles } from '@/types/approach'
 
 export class WeatherEffects {

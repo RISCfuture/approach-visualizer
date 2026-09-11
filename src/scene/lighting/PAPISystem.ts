@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@/scene/babylon'
 import * as SafeMesh from '@/scene/utils/SafeMeshBuilder'
 import {
   feetToMeters,

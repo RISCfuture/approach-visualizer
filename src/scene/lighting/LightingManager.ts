@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@/scene/babylon'
 import type { LightingType } from '@/types/approach'
 import { ApproachLightingSystem } from './ApproachLightingSystem'
 import { createApproachLighting } from './ApproachLightingFactory'

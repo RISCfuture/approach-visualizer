@@ -1,7 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
-import babylonjsCjsInterop from './build/vite-plugin-babylonjs-cjs-interop.ts'
 import vue from '@vitejs/plugin-vue'
 import vueI18n from '@intlify/unplugin-vue-i18n/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -19,7 +18,6 @@ const isBuild = process.env.npm_lifecycle_event === 'build-only' || process.env.
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
   plugins: [
-    babylonjsCjsInterop(),
     vue(),
     // Compile locale JSON to render functions at build time so vue-i18n needs
     // no runtime message compiler — keeps the strict CSP (no 'unsafe-eval').
@@ -44,9 +42,6 @@ export default defineConfig(({ command }) => ({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        // BabylonJS pushes the main chunk well past Workbox's 2 MiB default;
-        // raise the ceiling so the whole app shell precaches.
-        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
       },
     }),
     isBuild &&

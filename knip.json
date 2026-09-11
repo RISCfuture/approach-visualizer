@@ -3,6 +3,7 @@
   "project": ["src/**/*.{ts,vue}"],
   "ignore": [
     "src/__tests__/**",
+    "src/scene/babylon.ts",
     "src/scene/runway/RunwayManager.ts",
     "src/scene/utils.ts",
     "src/scene/weather/WeatherEffects.ts"

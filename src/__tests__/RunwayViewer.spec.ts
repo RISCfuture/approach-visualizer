@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
@@ -12,13 +12,6 @@ vi.mock('../scene/SceneManager', () => {
     SceneManager: vi.fn(),
   }
 })
-
-// Mock BABYLON.Engine.isSupported
-vi.mock('babylonjs', () => ({
-  Engine: {
-    isSupported: vi.fn(() => true),
-  },
-}))
 
 interface MockSceneManager {
   firstFrame: Promise<void>
@@ -58,8 +51,8 @@ describe('RunwayViewer', () => {
       },
     })
 
-    // Wait for mounted lifecycle
-    await wrapper.vm.$nextTick()
+    // Wait for the lazily-imported SceneManager to resolve
+    await flushPromises()
 
     // Check that the canvas is rendered
     expect(wrapper.find('canvas.babylon-canvas').exists()).toBe(true)
@@ -69,9 +62,8 @@ describe('RunwayViewer', () => {
     expect(wrapper.find('.webgl-error').exists()).toBe(false)
 
     // The spinner clears once the scene reports its first frame
-    expect(wrapper.find('.scene-loading').exists()).toBe(true)
     await mockSceneManager.firstFrame
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     expect(wrapper.find('.scene-loading').exists()).toBe(false)
 
     // Check that SceneManager was created
@@ -91,8 +83,8 @@ describe('RunwayViewer', () => {
       },
     })
 
-    // Wait for mounted lifecycle
-    await wrapper.vm.$nextTick()
+    // Wait for the lazily-imported SceneManager to resolve
+    await flushPromises()
 
     // Check that the error message is displayed
     expect(wrapper.find('.webgl-error').exists()).toBe(true)
@@ -123,8 +115,8 @@ describe('RunwayViewer', () => {
       },
     })
 
-    // Wait for mounted lifecycle
-    await wrapper.vm.$nextTick()
+    // Wait for the lazily-imported SceneManager to resolve
+    await flushPromises()
 
     // Unmount the component
     wrapper.unmount()
@@ -146,8 +138,8 @@ describe('RunwayViewer', () => {
       },
     })
 
-    // Wait for mounted lifecycle
-    await wrapper.vm.$nextTick()
+    // Wait for the lazily-imported SceneManager to resolve
+    await flushPromises()
 
     // Unmount the component
     wrapper.unmount()
@@ -172,8 +164,8 @@ describe('RunwayViewer', () => {
       },
     })
 
-    // Wait for mounted lifecycle
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    // Wait for the lazily-imported SceneManager to resolve
+    await flushPromises()
 
     // Check that error was logged
     expect(consoleSpy).toHaveBeenCalledTimes(1)

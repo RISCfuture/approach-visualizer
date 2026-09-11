@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@/scene/babylon'
 import { feetToMeters, RUNWAY_LENGTH_FT, RUNWAY_WIDTH_FT } from '@/types/approach'
 import type { LightingType } from '@/types/approach'
 

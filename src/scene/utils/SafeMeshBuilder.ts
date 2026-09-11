@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@/scene/babylon'
 
 /**
  * Safely create a mesh with error handling and scene validation
