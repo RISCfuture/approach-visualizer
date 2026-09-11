@@ -64,7 +64,8 @@
   },
   "status": {
     "altitude": "Altitude :",
-    "distance": "Distance :"
+    "distance": "Distance :",
+    "loading": "Chargement de la vue d'approche…"
   },
   "webgl": {
     "title": "WebGL non pris en charge",

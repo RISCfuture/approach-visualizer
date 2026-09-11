@@ -64,7 +64,8 @@
   },
   "status": {
     "altitude": "Altitude:",
-    "distance": "Distance:"
+    "distance": "Distance:",
+    "loading": "Loading approach view…"
   },
   "webgl": {
     "title": "WebGL Not Supported",

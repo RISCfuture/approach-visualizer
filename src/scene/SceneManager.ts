@@ -19,6 +19,9 @@ import { updateSceneColors } from './utils'
  * Reduced from ~2000 lines to ~600 lines with better organization
  */
 export class SceneManager {
+  /** Resolves once the scene has drawn its first frame to the canvas. */
+  public readonly firstFrame: Promise<void>
+
   private engine: BABYLON.Engine
   private scene: BABYLON.Scene
   private camera: BABYLON.UniversalCamera
@@ -156,6 +159,12 @@ export class SceneManager {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       this.isDarkMode = e.matches
       this.updateSceneForDarkMode()
+    })
+
+    this.firstFrame = new Promise<void>((resolve) => {
+      this.scene.onAfterRenderObservable.addOnce(() => {
+        resolve()
+      })
     })
 
     // Start render loop

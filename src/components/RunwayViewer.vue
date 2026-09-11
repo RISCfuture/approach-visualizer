@@ -11,6 +11,7 @@ const { t } = useI18n({ useScope: 'global' })
 const canvas = ref<HTMLCanvasElement>()
 const sceneManager = ref<SceneManager | null>(null)
 const webGLError = ref<string | null>(null)
+const isSceneLoading = ref(true)
 const approachStore = useApproachStore()
 const animationStore = useAnimationStore()
 
@@ -28,14 +29,22 @@ const isWithinVisibility = computed(() => {
 })
 
 onMounted(() => {
-  if (canvas.value) {
-    try {
-      sceneManager.value = new SceneManager(canvas.value)
-    } catch (error) {
-      console.error('Failed to initialize 3D scene:', error)
-      webGLError.value = 'WebGL is not supported in your browser'
-    }
+  if (!canvas.value) return
+
+  let manager: SceneManager
+  try {
+    manager = new SceneManager(canvas.value)
+  } catch (error) {
+    console.error('Failed to initialize 3D scene:', error)
+    webGLError.value = 'WebGL is not supported in your browser'
+    isSceneLoading.value = false
+    return
   }
+
+  sceneManager.value = manager
+  void manager.firstFrame.finally(() => {
+    isSceneLoading.value = false
+  })
 })
 
 onUnmounted(() => {
@@ -76,6 +85,12 @@ watch(
     <p id="canvas-description" class="sr-only">
       {{ t('a11y.canvasDescription') }}
     </p>
+
+    <!-- Holds the frame until BabylonJS paints, so the canvas is never a bare black box -->
+    <div v-if="isSceneLoading && !webGLError" class="scene-loading" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>{{ t('status.loading') }}</span>
+    </div>
 
     <!-- WebGL Error Message -->
     <div v-if="webGLError" class="webgl-error">
@@ -144,6 +159,42 @@ watch(
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+.scene-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #ccc;
+  pointer-events: none;
+  user-select: none;
+  transform: translate(-50%, -50%);
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid rgb(255 255 255 / 20%);
+  border-top-color: #0f0;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
 }
 
 .status-overlay {

@@ -11,7 +11,6 @@ import { primeVueLocale } from './i18n/primevue'
 import { recoverFromPreloadErrors } from './utils/preloadRecovery'
 
 import 'normalize.css'
-import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
 import './styles/global.css'
 
@@ -36,7 +35,6 @@ Sentry.init({
       },
     }),
     Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true }),
   ],
   tracesSampleRate: 1.0,
   enableLogs: true,
@@ -86,11 +84,16 @@ app.directive('tooltip', Tooltip)
 
 // Resolve the browser/stored locale (and lazily load its catalog) before the
 // first paint so the UI never flashes the fallback language. A promise chain
-// (not top-level await) is deliberate: the legacy build targets browsers
-// without top-level-await support.
+// (not top-level await) keeps the entry chunk free of a module-graph-wide
+// await, so nothing downstream of it is deferred a tick.
 // oxlint-disable-next-line unicorn/prefer-top-level-await
 void initLocale().finally(() => {
   app.mount('#app')
+  // Session Replay is fetched only once the app is on screen; it is the
+  // heaviest part of the SDK and contributes nothing to the first paint.
+  void import('./sentry/sessionReplay').then(({ startSessionReplay }) => {
+    startSessionReplay()
+  })
 })
 
 /**

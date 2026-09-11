@@ -21,6 +21,7 @@ vi.mock('babylonjs', () => ({
 }))
 
 interface MockSceneManager {
+  firstFrame: Promise<void>
   updateSettings: ReturnType<typeof vi.fn>
   dispose: ReturnType<typeof vi.fn>
 }
@@ -34,6 +35,7 @@ describe('RunwayViewer', () => {
 
     // Create a mock SceneManager instance
     mockSceneManager = {
+      firstFrame: Promise.resolve(),
       updateSettings: vi.fn(),
       dispose: vi.fn(),
     }
@@ -65,6 +67,12 @@ describe('RunwayViewer', () => {
     // Check that status overlay is shown (not the error)
     expect(wrapper.find('.status-overlay').exists()).toBe(true)
     expect(wrapper.find('.webgl-error').exists()).toBe(false)
+
+    // The spinner clears once the scene reports its first frame
+    expect(wrapper.find('.scene-loading').exists()).toBe(true)
+    await mockSceneManager.firstFrame
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.scene-loading').exists()).toBe(false)
 
     // Check that SceneManager was created
     expect(SceneManager).toHaveBeenCalledTimes(1)

@@ -64,7 +64,8 @@
   },
   "status": {
     "altitude": "Höhe:",
-    "distance": "Entfernung:"
+    "distance": "Entfernung:",
+    "loading": "Anflugansicht wird geladen …"
   },
   "webgl": {
     "title": "WebGL nicht unterstützt",

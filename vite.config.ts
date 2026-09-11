@@ -5,7 +5,6 @@ import babylonjsCjsInterop from './build/vite-plugin-babylonjs-cjs-interop.ts'
 import vue from '@vitejs/plugin-vue'
 import vueI18n from '@intlify/unplugin-vue-i18n/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import legacy from '@vitejs/plugin-legacy'
 import csp from 'vite-plugin-csp-guard'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -28,16 +27,16 @@ export default defineConfig(({ command }) => ({
       include: [fileURLToPath(new URL('./src/i18n/locales/**', import.meta.url))],
     }),
     command === 'serve' && vueDevTools({ launchEditor: process.env.VITE_LAUNCH_EDITOR }),
-    legacy({
-      targets: ['chrome >= 79', 'edge >= 79', 'safari >= 13', 'firefox >= 67'],
-      modernPolyfills: ['es.object.has-own'],
-    }),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: false,
       injectRegister: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'],
+        // PrimeIcons ships its glyphs in five formats; every browser that can
+        // run this app picks the woff2. Precaching the SVG fallback alone
+        // would cost 347 KB for a file nothing ever requests.
+        globIgnores: ['**/primeicons-*.svg'],
         // This site has no client-side router, so an unknown path is a real 404.
         // vite-plugin-pwa otherwise defaults this to index.html, which makes the
         // service worker answer every unknown path with the home page.
@@ -45,10 +44,9 @@ export default defineConfig(({ command }) => ({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        // PrimeVue + flight visualization libs push the main chunk past 2 MiB,
-        // and the legacy bundle is even larger. Raise from the default so the
-        // whole app shell precaches.
-        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024,
+        // BabylonJS pushes the main chunk well past Workbox's 2 MiB default;
+        // raise the ceiling so the whole app shell precaches.
+        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
       },
     }),
     isBuild &&
@@ -59,9 +57,7 @@ export default defineConfig(({ command }) => ({
         policy: {
           'default-src': ["'self'"],
           'script-src': ["'self'"],
-          // Vite's modern-browser detector uses a data: module import; ensure 'self'
-          // is preserved alongside the hashes the plugin injects for inline <script>s.
-          'script-src-elem': ["'self'", 'data:'],
+          'script-src-elem': ["'self'"],
           // TODO: precompile the PrimeVue Aura theme to a static stylesheet so we can
           // drop 'unsafe-inline' here. PrimeVue 4 styled mode injects <style> tags at
           // runtime via @primeuix/themes; a nonce-less static host (GitHub Pages)
@@ -89,6 +85,10 @@ export default defineConfig(({ command }) => ({
   },
   build: {
     sourcemap: 'hidden',
+    // The app hard-requires WebGL, so every browser that can run it is well
+    // past ES2022. Pinning the target keeps Vite from down-levelling syntax
+    // for browsers that could never render a frame anyway.
+    target: 'es2022',
   },
   base: '/approach-visualizer/',
 }))
