@@ -2,6 +2,8 @@ allowBuilds:
   core-js: true
   babylonjs: true
   esbuild: true
+minimumReleaseAgeExclude:
+  - knip@6.44.1
 onlyBuiltDependencies:
   - core-js
   - babylonjs

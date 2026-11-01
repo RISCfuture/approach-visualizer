@@ -24,5 +24,6 @@
     "binaries": "error",
     "unlisted": "error",
     "unresolved": "error"
-  }
+  },
+  "ignoreDependencies": ["@typescript/native"]
 }

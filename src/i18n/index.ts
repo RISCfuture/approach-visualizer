@@ -13,6 +13,7 @@ import { DEFAULT_LOCALE, type SupportedLocale } from './locales'
  * runtime-computed keys (e.g. `minima.${id}`), which strict key typing rejects.
  */
 export const i18n = createI18n<false>({
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- Composition mode requires this option in Vue I18n 11.
   legacy: false,
   locale: DEFAULT_LOCALE,
   fallbackLocale: DEFAULT_LOCALE,

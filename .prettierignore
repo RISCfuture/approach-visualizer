@@ -8,3 +8,5 @@ coverage
 # pnpm writes this in its own format on every install; formatting it here only
 # starts a fight Prettier loses on the next lockfile change.
 pnpm-lock.yaml
+
+test-results/
