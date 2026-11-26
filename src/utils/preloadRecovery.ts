@@ -3,6 +3,8 @@
 const RELOAD_KEY = 'preload-error-reload'
 const RELOAD_COOLDOWN_MS = 10 * 60 * 1000
 
+let reloading = false
+
 /**
  * Reloads the page when a lazily-loaded chunk can't be fetched.
  *
@@ -19,12 +21,24 @@ export function recoverFromPreloadErrors(): void {
   window.addEventListener('vite:preloadError', reloadOnce)
 }
 
+/**
+ * Whether this page has started reloading to recover a failed chunk.
+ *
+ * Suppressing Vite's rethrow makes the failed `import()` resolve to `undefined`, so its caller
+ * fails on the missing module, and the page keeps running until the reload replaces it. Errors
+ * raised in that window are side effects of the recovery, not faults worth reporting.
+ */
+export function isRecoveringFromPreloadError(): boolean {
+  return reloading
+}
+
 function reloadOnce(event: VitePreloadErrorEvent): void {
   if (!claimReload()) return
 
   // Suppresses Vite's rethrow: the reload is the recovery, so the rejection isn't worth
   // reporting. A failure that can't claim a reload stays unprevented and reaches Sentry.
   event.preventDefault()
+  reloading = true
   window.location.reload()
 }
 

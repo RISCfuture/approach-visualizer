@@ -8,7 +8,7 @@ import { createSentryPiniaPlugin } from '@sentry/vue'
 
 import { i18n, initLocale } from './i18n'
 import { primeVueLocale } from './i18n/primevue'
-import { recoverFromPreloadErrors } from './utils/preloadRecovery'
+import { isRecoveringFromPreloadError, recoverFromPreloadErrors } from './utils/preloadRecovery'
 
 import 'normalize.css'
 import 'primeicons/primeicons.css'
@@ -37,6 +37,8 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
   ],
   tracesSampleRate: 1.0,
+
+  beforeSend: (event) => (isRecoveringFromPreloadError() ? null : event),
 
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,

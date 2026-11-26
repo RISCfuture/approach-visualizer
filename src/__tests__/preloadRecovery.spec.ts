@@ -6,9 +6,10 @@ const unregisterListeners: (() => void)[] = []
 
 // Every listener a copy of the module leaves on `window` is captured, so none outlives the test
 // that installed it — a test standing up two page loads installs two.
-async function loadPage(): Promise<void> {
+async function loadPage(): Promise<() => boolean> {
   vi.resetModules()
-  const { recoverFromPreloadErrors } = await import('@/utils/preloadRecovery')
+  const { isRecoveringFromPreloadError, recoverFromPreloadErrors } =
+    await import('@/utils/preloadRecovery')
 
   const addEventListener = vi.spyOn(window, 'addEventListener')
   recoverFromPreloadErrors()
@@ -20,6 +21,8 @@ async function loadPage(): Promise<void> {
       window.removeEventListener(type, listener)
     })
   }
+
+  return isRecoveringFromPreloadError
 }
 
 /** Dispatches the event Vite's preload helper fires, returning whether the rethrow was suppressed. */
@@ -44,10 +47,12 @@ describe('preloadRecovery', () => {
   })
 
   it('reloads the page when a chunk fails to preload', async () => {
-    await loadPage()
+    const isRecovering = await loadPage()
+    expect(isRecovering()).toBe(false)
 
     expect(failPreload()).toBe(true)
     expect(reload).toHaveBeenCalledOnce()
+    expect(isRecovering()).toBe(true)
   })
 
   it('lets a failure through instead of reloading again during the cooldown', async () => {
@@ -55,11 +60,12 @@ describe('preloadRecovery', () => {
     failPreload()
     reload.mockClear()
 
-    await loadPage()
+    const isRecovering = await loadPage()
     vi.advanceTimersByTime(60_000)
 
     expect(failPreload()).toBe(false)
     expect(reload).not.toHaveBeenCalled()
+    expect(isRecovering()).toBe(false)
   })
 
   it('reloads again once the cooldown has passed', async () => {
